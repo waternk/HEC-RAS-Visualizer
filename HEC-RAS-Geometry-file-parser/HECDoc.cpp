@@ -152,6 +152,7 @@ int CHECDoc::Load(MyFile &geometryFile)
 			CReach Reach;
 			Reach.m_nID = m_Reaches.GetNextID();
 			Reach.m_sName = sLine.Mid(12);
+			Reach.m_sName = Reach.m_sName.substr(17);
 			Reach.m_sName.Trim();
 			//CParser::CleanString(Reach.m_sName);
 			Reach.Load(geometryFile);

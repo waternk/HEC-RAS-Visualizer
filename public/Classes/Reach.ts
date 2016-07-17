@@ -8,7 +8,7 @@ export class Reach {
     private _crosses: Array<Cross>;
     private _color: string;
     private _label: THREE.Sprite;
-
+    private _basicMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
     
     public get Label() : THREE.Sprite 
     {
@@ -80,10 +80,10 @@ export class Reach {
         scene.add(sp);
         sp.updateMatrixWorld(true);
         
-        var vector = new THREE.Vector3();
-        vector.setFromMatrixPosition(sp.matrixWorld);
-        vector.project(camera);
-        sp.position.set(vector.x, vector.y + (0.2 * 1/ratio), vector.z);
+        // var vector = new THREE.Vector3();
+        // vector.setFromMatrixPosition(sp.matrixWorld);
+        // vector.project(camera);
+        //sp.position.set(vector.x, vector.y + (0.2 * 1/ratio), vector.z);
     }
 
     public AddLabelToScene(scene: THREE.Scene)
@@ -146,12 +146,10 @@ export class Reach {
 
     public AddToSceneLikeLines(scene: THREE.Scene, labelScene: THREE.Scene, camera: THREE.Camera, cameraHUD: THREE.Camera, scaleVector?: THREE.Vector3)
     {
-        var basicMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });        
-        //basicMaterial.color.setRGB(0.2,0.1,0.8);
         for (var i = 0; i < this.Crosses.length; i++)
         {
             var cross = this.Crosses[i];
-            var meshCross = new THREE.Line(cross, basicMaterial);
+            var meshCross = new THREE.Line(cross, this._basicMaterial);
             meshCross.scale.set(scaleVector.x,scaleVector.y,scaleVector.z);
             scene.add(meshCross);
         }

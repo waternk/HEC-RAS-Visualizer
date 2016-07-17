@@ -1,4 +1,4 @@
-import { Component, OnInit, Injectable } from '@angular/core';
+import { Component, OnInit, Injectable, ViewChild } from '@angular/core';
 import { UploaderComponent } from './uploader.component';
 import { Reach } from '../Classes/Reach';
 import { Cross } from '../Classes/Cross';
@@ -59,6 +59,7 @@ import * as _ from 'lodash';
 
 export class IdeComponent implements OnInit
 {
+    @ViewChild(UploaderComponent) Uploader: UploaderComponent;
     IdeApp: IdeComponent;
     HECRASInputs: Array<String>;
     DisplayView: any;
@@ -76,7 +77,9 @@ export class IdeComponent implements OnInit
     scene: THREE.Scene;
     labelScene: THREE.Scene;
     object3D: THREE.AxisHelper;
-    plane: THREE.Plane;
+    Plane: THREE.Plane;
+    PointLight: THREE.PointLight;
+    AmbientLight: THREE.AmbientLight;
     reachCollection: ReachCollection;
     gl: any;
     renderer: any;
@@ -84,12 +87,16 @@ export class IdeComponent implements OnInit
     prevCtrls: THREE.OrthographicTrackballControls;
     prevCam: THREE.OrthographicCamera;
 
-    
     constructor()
     {
         this.IdeApp = this;
         ideApp = this;
-        this.DisplayView = { view: 'mesh' };
+        this.DisplayView = { view: 'line' };
+    }
+
+    CloseModal()
+    {
+        this.Uploader.Clear();
     }
 
     PushInput(input: string)
@@ -104,35 +111,32 @@ export class IdeComponent implements OnInit
             var scaleVector3 = new THREE.Vector3(ideApp.crossScaleX, ideApp.crossScaleY, ideApp.crossScaleZ);
             var dir = _.clone<THREE.Vector3>(ideApp.controls.target).sub(_.clone<THREE.Vector3>(ideApp.camera.position));
             var ray = new THREE.Ray(ideApp.camera.position, dir);
-            var point = ray.intersectPlane(ideApp.plane);
+            var point = ray.intersectPlane(ideApp.Plane);
 
             if(point)
             {
                 ideApp.controls.target.set(point.x, point.y, point.z);
+                ideApp.camera.lookAt(point);
             }
         }
     }
 
     Init()
     {
-        for (var i = 0; i < this.HECRASInputs.length; i++) 
+        this.reachCollection.Clear();
+        this.ClearScene(this.scene);
+        this.ClearScene(this.labelScene);
+        this.selectedReach = null;
+        this.Reaches = [];
+        if(this.HECRASInputs.length > 0)
         {
-            var input = this.HECRASInputs[i];
-            this.setCamera();
-            this.setCameraHUD();
-            this.setControls();
-            this.createScenes();
-            this.reachCollection = new ReachCollection();
-            if(input && input != "")
+            this.initReachCollection(this.HECRASInputs, () =>
             {
-                this.initReachCollection(input, () =>
-                {
-                    this.DisplayAllReaches();
-                    this.animate();  
-                });
-            }
-            this.render();   
+                this.DisplayAllReaches();
+                this.SetCamera();  
+            });
         }
+        this.Animate();
     }
 
     ngOnInit()
@@ -149,9 +153,16 @@ export class IdeComponent implements OnInit
         parent.style.width = this.divCanvas.style.width;
         parent.style.height = this.divCanvas.style.height;
         this.divCanvas.addEventListener( 'mouseup', this.mouseup, false );
-        this.createRenderer(this.divCanvas);
+        this.CreateRenderer(this.divCanvas);
         this.divCanvas.appendChild(this.renderer.domElement);
         this.reachCollection = new ReachCollection();
+        this.CreateScenes();
+        this.CreatePlane();
+        this.CreateLight();
+        this.CreateCamera();
+        this.CreateCameraHUD();
+        this.CreateControls();
+        this.SetLight();
         this.HECRASInputs = [];
     }
 
@@ -171,6 +182,7 @@ export class IdeComponent implements OnInit
     {
         this.ClearScene(this.scene);
         this.ClearScene(this.labelScene);
+        this.SetLight();
         this.selectedReach = reach.Copy();
 
         var scaleVector3 = new THREE.Vector3(this.crossScaleX, this.crossScaleY, this.crossScaleZ);
@@ -182,8 +194,7 @@ export class IdeComponent implements OnInit
             this.selectedReach.AddToSceneLikeLines(this.scene, this.labelScene, this.camera, this.cameraHUD, scaleVector3);
         
         this.selectedReach.CreateLabelAsSprite(this.labelScene,this.camera, scaleVector3, this.ratio);
-        this.setLight();
-        this.render();
+    
     }
 
     ResetCameraAndControls()
@@ -191,12 +202,10 @@ export class IdeComponent implements OnInit
         var lookAtVector = new THREE.Vector3(0,0, -1);
         lookAtVector.applyQuaternion(this.camera.quaternion);
         this.controls.target0.set(lookAtVector.x, lookAtVector.y, lookAtVector.z);
-        this.controls.up0.set( 0, 1, 0 );
+        this.controls.up0.set(0, 1, 0);
         this.controls.reset();
         //7482696.417294 4946990.459081
-        this.camera.position.x = -20;
-        this.camera.position.y = 40;
-        this.camera.position.z = -20;
+        this.SetCamera();
     }
 
     DisplayAllReaches()
@@ -217,8 +226,7 @@ export class IdeComponent implements OnInit
             reach.AddLabelToScene(this.labelScene);
         }
         
-        this.setLight();
-        this.render();
+        this.SetLight();
     }
 
     ClearScene(scene: THREE.Scene)
@@ -231,7 +239,7 @@ export class IdeComponent implements OnInit
         }
     }
 
-    createRenderer(divCanvas)
+    CreateRenderer(divCanvas)
     {
         this.renderer = new THREE.WebGLRenderer({ alpha: true, clearColor: 0xffffff, antialias: true });
         this.gl = this.renderer.context;
@@ -243,59 +251,48 @@ export class IdeComponent implements OnInit
         this.renderer.setSize(divCanvas.clientWidth, divCanvas.clientHeight);
     }
 
-    setControls()
+    CreateControls()
     {
         this.controls = new THREE.OrthographicTrackballControls(this.camera, this.divCanvas);
-        this.controls.addEventListener('change', this.render);
+        this.controls.addEventListener('change', this.Render);
     }
     
-    createScenes()
+    CreateScenes()
     {
         this.scene = new THREE.Scene();
         this.labelScene = new THREE.Scene();
     }
 
-    setCamera()
+    CreateCamera()
     {         
         this.camera = new THREE.OrthographicCamera( this.divCanvas.clientWidth / - 2, 
                                                     this.divCanvas.clientWidth / 2, 
                                                     this.divCanvas.clientHeight / 2, 
                                                     this.divCanvas.clientHeight / - 2, 
-                                                    -100000, 100000);
+                                                    -1000000000, 1000000000);
+    }
+
+    SetCamera()
+    {
         this.camera.position.x = -20;
         this.camera.position.y = 40;
         this.camera.position.z = -20;
+        // this.camera.position.x = this.reachCollection.Reaches[0].Crosses[this.reachCollection.Reaches[0].Crosses.length - 1].LeftCoast.x;
+        // this.camera.position.y = 0;
+        // this.camera.position.z = this.reachCollection.Reaches[0].Crosses[this.reachCollection.Reaches[0].Crosses.length - 1].LeftCoast.z;
     }
     
-    setCameraHUD()
+    CreateCameraHUD()
     {
         this.cameraHUD = new THREE.OrthographicCamera(-1, 1, 1, -1, -1, 1);
     }
 
-    initReachCollectionFile(file, callback)
+    initReachCollection(inputs: Array<String>, callback: Function)
     {
-        this.reachCollection = new ReachCollection();
-        this.reachCollection.LoadCrossesFromFile(file, 1, this.ratio, () => 
+        this.reachCollection.Load(inputs, 1, this.ratio, () => 
         {
             var scaleVector3 = new THREE.Vector3(ideApp.crossScaleX, ideApp.crossScaleY, ideApp.crossScaleZ);
-            //this.reachCollection.SortCrossesByPositionSelectionSort();
-            this.reachCollection.Normalize();
-            
-            for(var i = 0; i < this.reachCollection.Reaches.length; i++)
-            {
-                this.reachCollection.Reaches[i].CreateLabelAsSprite(this.labelScene, this.camera, scaleVector3, this.ratio);
-            }
-            
-            callback();
-        });
-    }
-
-    initReachCollection(input: String, callback: Function)
-    {
-        this.reachCollection.LoadCrosses(input, 1, this.ratio, () => 
-        {
-            var scaleVector3 = new THREE.Vector3(ideApp.crossScaleX, ideApp.crossScaleY, ideApp.crossScaleZ);
-            this.reachCollection.Normalize();
+            this.reachCollection.Organize();
             for(var i = 0; i < this.reachCollection.Reaches.length; i++)
             {
                 this.reachCollection.Reaches[i].CreateLabelAsSprite(this.labelScene, this.camera, scaleVector3, this.ratio);
@@ -304,16 +301,27 @@ export class IdeComponent implements OnInit
         });
     }
 
-    setLight()
+    CreateLight()
     {
-        this.scene.add(new THREE.AmbientLight(0x000000));
-        var light = new THREE.PointLight( 0xffffff, 1, 0 );
-        light.position.set(100000000, 1000000000, 1000000000);
-        this.scene.add(light);
-        this.plane = new THREE.Plane(new THREE.Vector3(0, 1, 0));
+        this.PointLight = new THREE.PointLight( 0xffffff, 1, 0 );
+        this.PointLight.position.set(100000000, 1000000000, 1000000000);
+        this.AmbientLight = new THREE.AmbientLight(0x000000);
     }
 
-    animate()
+    CreatePlane()
+    {
+        this.Plane = new THREE.Plane(new THREE.Vector3(0, 1, 0));
+    }
+
+    SetLight()
+    {
+        if(this.AmbientLight)
+            this.scene.add(this.AmbientLight);
+        if(this.PointLight)
+            this.scene.add(this.PointLight);
+    }
+
+    Animate()
     {
         var scaleVector3 = new THREE.Vector3(ideApp.crossScaleX, ideApp.crossScaleY, ideApp.crossScaleZ);
         var camOpts = ideApp.camera.toJSON().object;
@@ -342,11 +350,11 @@ export class IdeComponent implements OnInit
         }
         
         ideApp.controls.update();
-        requestAnimationFrame(ideApp.animate);
-        ideApp.render();
+        requestAnimationFrame(ideApp.Animate);
+        ideApp.Render();
     }
 
-    render()
+    Render()
     {
         ideApp.renderer.clear();
         ideApp.renderer.render(ideApp.scene, ideApp.camera);

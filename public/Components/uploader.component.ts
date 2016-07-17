@@ -1,8 +1,9 @@
-import { Component, OnInit, Injectable, Input, Output } from '@angular/core';
+import { Component, OnInit, Injectable, Input, Output, ViewChild, ElementRef } from '@angular/core';
 import { CORE_DIRECTIVES, FORM_DIRECTIVES, NgClass, NgStyle } from '@angular/common';
 import { FILE_UPLOAD_DIRECTIVES, FileUploader } from 'ng2-file-upload';
 import { IdeComponent } from './ide.component'; 
 import * as _ from 'lodash';
+import * as $ from 'jquery';
 
 @Component({
     selector: 'uploader',
@@ -60,8 +61,11 @@ import * as _ from 'lodash';
 export class UploaderComponent implements OnInit
 {
     @Input() IdeApp: IdeComponent;
-    public uploader:FileUploader = new FileUploader({url: 'http://localhost:3000/geometry'});
+    @ViewChild('InputFile') InputFile: ElementRef;
 
+    public uploader:FileUploader = new FileUploader({url: 'http://localhost:3000/geometry'});
+    
+    
     constructor()
     {
         this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => 
@@ -72,6 +76,13 @@ export class UploaderComponent implements OnInit
 
     ngOnInit()
     {
-        console.log(this.IdeApp);
+        
+    }
+
+    Clear()
+    {
+        this.uploader.clearQueue();
+        this.uploader.cancelAll();
+        this.InputFile.nativeElement.value = "";
     }
 }

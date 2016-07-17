@@ -32,14 +32,8 @@ export class ReachCollection
         }
     }
     
-    Normalize()
+    Organize()
     {
-
-        function scaleBetween(unscaledNum, minAllowed, maxAllowed, min, max) 
-        {
-            return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
-        }
-
         var cross : Cross = this._reaches[0].Crosses[0];
         var leftCoastFirst = cross.LeftCoast;
         var rightCoastFirst = cross.RightCoast;
@@ -51,45 +45,9 @@ export class ReachCollection
         {
             for (var i = 0; i < this._reaches[r].Crosses.length; i++)
             {
-                /*
-                cross = this._reaches[r].Crosses[i];
-                var left = new THREE.Vector3(cross.LeftCoast.x, cross.LeftCoast.y, cross.LeftCoast.z);
-                var right = new THREE.Vector3(cross.RightCoast.x, cross.RightCoast.y, cross.RightCoast.z);
-                var obala = new THREE.Vector3(cross.LeftCoast.x, 0, cross.LeftCoast.z);
-
-                obala.sub(new THREE.Vector3(cross.RightCoast.x, 0, cross.RightCoast.z));
-                obala.normalize();
-                // var angle = Math.acos(obala.dot(vecx) / (obala.length()* vecx.length()));
-                // mRotate = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0,1,0), angle);
-                var quaternion = new THREE.Quaternion().setFromUnitVectors(vecx, obala);
-                mRotate = new THREE.Matrix4().makeRotationFromQuaternion(quaternion);
-                mt.makeTranslation(-cross.vertices[0].x, -cross.vertices[0].y, -cross.vertices[0].z);
-                mtBack.makeTranslation(left.x - leftCoastFirst.x, 0, left.z - leftCoastFirst.z);
-                for (var j = 0; j < cross.vertices.length; j++)
-                {
-                    cross.vertices[j].applyMatrix4(mt);
-                    cross.vertices[j].applyMatrix4(mRotate);
-                    cross.vertices[j].applyMatrix4(mtBack);
-                }
-                
-                
-                // if(cross.vertices[cross.vertices.length -1].x < 0 &&
-                //   cross.vertices[cross.vertices.length -1].y < 0
-                // )
-                //     this.TranslateCross(cross, new THREE.Vector3(right.x - rightCoastFirst.x, 0, right.z - rightCoastFirst.z));
-                // else
-                //this.TranslateCross(cross, new THREE.Vector3(left.x - leftCoastFirst.x, 0, left.z - leftCoastFirst.z));
-
-
-                */
-
-
                 cross = this._reaches[r].Crosses[i];
                 var newLeftX = cross.LeftCoast.x - leftCoastFirst.x;
                 var newLeftZ = cross.LeftCoast.z - leftCoastFirst.z;
-                
-                var newRightX = cross.RightCoast.x - rightCoastFirst.x;
-                var newRightZ = cross.RightCoast.z - rightCoastFirst.z;
                 
                 var firstVertex = cross.vertices[0];
                 var lastVertex = cross.vertices[cross.vertices.length-1];
@@ -104,14 +62,11 @@ export class ReachCollection
                 var subVecLocal = new THREE.Vector3();
                 subVecLocal.subVectors(lastVertex, firstVertex);
                 subVecLocal.normalize();
-
-                //var angle = Math.acos(subVecGlobal.dot(subVecLocal)/(subVecGlobal.length() * subVecLocal.length()));
-                //var axis = new THREE.Vector3(0, 1, 0);
                 var quaternion = new THREE.Quaternion().setFromUnitVectors(subVecLocal, subVecGlobal);
                 mRotate = new THREE.Matrix4().makeRotationFromQuaternion(quaternion);
                 mt.makeTranslation(-cross.vertices[0].x, -cross.vertices[0].y, -cross.vertices[0].z)
                 mtBack.makeTranslation(newLeftX, 0, newLeftZ);
-                //mRotate.makeRotationAxis(axis, angle);
+                //mtBack.makeTranslation(cross.LeftCoast.x, 0, cross.LeftCoast.z);
                 
                 for (var j = 0; j < cross.vertices.length; j++) 
                 {
@@ -194,9 +149,12 @@ export class ReachCollection
         return color;
     }
     
-    LoadCrosses(input: String, scale: number, ratio:number, callback: Function)
+    Load(inputs: Array<String>, scale: number, ratio:number, callback: Function)
     {
-        var reaches = input.split('reach');
+        for (var k = 0; k < inputs.length; k++) 
+        {
+            var input = inputs[k];
+            var reaches = input.split('reach');
             for (var r = 1; r < reaches.length; r++) 
             {
                 var reach = new Reach();
@@ -227,17 +185,18 @@ export class ReachCollection
                         arr.push(new THREE.Vector3((x as number) * scale, (y as number) * scale));
 
                     }
-                    cross.setVerticesByArray(new THREE.SplineCurve3(arr).getPoints(100));
+                    cross.setVerticesByArray(new THREE.SplineCurve3(arr).getPoints(50));
                     reach.Crosses.push(cross);  
                 }
                 reach.Color = this.GetRandomColor();
                 this.PushReach(reach);
-            } 
+            }    
+        }
             
-            if(callback)
-            {
-                callback();
-            }
+        if(callback)
+        {
+            callback();
+        }
     }
 
     LoadCrossesFromFile(url, scale: number, ratio:number, callback: Function)

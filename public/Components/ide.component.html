@@ -70,8 +70,23 @@
                                     <input id="inputZ" style="width:50px" type="number" (ngModelChange)="ChangeView();" [(ngModel)]="crossScaleZ" />
                                 </div>
                             </div>
-
-                        </div>
+                       <!--<h7>Camera Vector</h7>
+                        <div class="panel-body">
+                            <div >
+                                <div >
+                                    <label for="inputX" class="col-md-1 control-label">X: </label>
+                                    <input id="inputX"  type="number" (ngModelChange)="ChangeView();" [(ngModel)]="camera.position.x" />
+                                </div>
+                                <div>
+                                    <label for="inputY" class="col-md-1 control-label">Y: </label>
+                                    <input id="inputY"   type="number" (ngModelChange)="ChangeView();" [(ngModel)]="camera.position.y" />
+                                </div>
+                                <div >
+                                    <label for="inputZ" class="col-md-1 control-label">Z: </label>
+                                    <input id="inputZ"  type="number" (ngModelChange)="ChangeView();" [(ngModel)]="camera.position.z" />
+                                </div>
+                            </div>
+                        </div>-->
                     </div>
                     <div>
                         <button class="btn btn-primary btn-xs" (click)="DisplayAllReaches()" >Display all</button>
@@ -93,8 +108,8 @@
        <uploader [IdeApp]="IdeApp"></uploader>
       </div>
       <div class="modal-footer">
-          <button type="button" class="btn btn-xs btn-default " data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-xs btn-primary" (click)="Init()" data-dismiss="modal">Save</button>
+          <button type="button" class="btn btn-xs btn-default " (click)="CloseModal();" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-xs btn-primary" (click)="CloseModal();Init();" data-dismiss="modal">Save</button>
       </div>
     </div>
   </div>
