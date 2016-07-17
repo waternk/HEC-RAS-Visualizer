@@ -18,7 +18,7 @@ To run this program you need to complete the following steps:
 <li>Download and install the latest version of node from https://nodejs.org/en/.</li>
 <li>Clone or download this repository.</li>
 <li>Navigate to downloaded project directory.</li>
-<li>Download three.js library from http://threejs.org and copy to public directory. </li>
+<li>Download Three.js library from http://threejs.org and copy to public directory. </li>
 <li>Make sure that you are in the project directory, and type the following commands:</br>
 <pre>
 sudo npm install -g bower --save
