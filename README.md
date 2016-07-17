@@ -23,3 +23,4 @@ npm start</pre></li>
 <img src="screenshots/Screen Shot 2016-07-17 at 17.38.05.png" />
 <img src="screenshots/Screen Shot 2016-07-17 at 17.36.03.png" />
 <img src="screenshots/Screen Shot 2016-07-17 at 17.36.09.png" />
+<img src="screenshots/Screen Shot 2016-07-17 at 17.35.42.png" />
