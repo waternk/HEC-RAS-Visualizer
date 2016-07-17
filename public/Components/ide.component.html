@@ -1,0 +1,101 @@
+<script>
+    $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip(); 
+    });
+</script>
+<div class="noselect">
+    <div class="dropdown">
+    <button id="dLabel" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        FILE
+        <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="dLabel">
+        <li style="cursor: pointer" data-toggle="modal" data-target="#myModal"><a><span>Open</span></a></li>
+    </ul>
+    </div>
+    <div id="viewport" >
+        <div id="canvas"></div>
+    </div>
+    <div style="float: right;" style="width:310px; float:right;">
+        <div class="col-xs-11 panel panel-default">
+            <h2>Options</h2>
+            <h6 role="button" class="panel-heading" data-toggle="collapse" href="#collapse1"><span><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> List of reaches</span></h6>
+            <div id="collapse1" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <table class="table-sm table-striped table-responsive table-hover">
+                    <thead>
+                        <tr>
+                            <th style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis">Reach name</th>
+                            <th>Color</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr  data-toggle="tooltip" title="{{ reach.Name }}" role="button" (click)="ResetCameraAndControls();DisplayReach(reach);"  *ngFor="let reach of reachCollection.Reaches">
+                            <td>{{ reach.Name }}</td>
+                            <td [style.backgroundColor] = "reach.Color"></td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </div>
+            </div>
+            <h6 role="button" class="panel-heading" data-toggle="collapse" href="#collapse2"><span><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Other</span></h6>
+            <div id="collapse2" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div>
+                        Show labels <input type="checkbox" [(ngModel)]="showLabels" />
+                    </div>
+                    <div class="input-group">
+                        Model View: 
+                        <label class="radio-inline">
+                            <input type="radio" [ngModel]="{checked: DisplayView.view == 'line'}" (click)="DisplayView.view = 'line';" (ngModelChange)="ChangeView();"  name="view" value="line">line<br>
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" [ngModel]="{checked: DisplayView.view == 'mesh'}"  (click)="DisplayView.view = 'mesh';" (ngModelChange)="ChangeView();" name="view" value="mesh">mesh
+                        </label>
+                    </div>
+                    <div class="panel panel-default">
+                        <h7>Scale Vector</h7>
+                        <div class="panel-body">
+                            <div class="form-group row">
+                                <div class="col-xs-4">
+                                    <label for="inputX" class="col-md-1 control-label">X: </label>
+                                    <input id="inputX"  style="width:50px" type="number" (ngModelChange)="ChangeView();" [(ngModel)]="crossScaleX" />
+                                </div>
+                                <div class="col-xs-4">
+                                    <label for="inputY" class="col-md-1 control-label">Y: </label>
+                                    <input id="inputY"  style="width:50px" type="number" (ngModelChange)="ChangeView();" [(ngModel)]="crossScaleY" />
+                                </div>
+                                <div class="col-xs-4">
+                                    <label for="inputZ" class="col-md-1 control-label">Z: </label>
+                                    <input id="inputZ" style="width:50px" type="number" (ngModelChange)="ChangeView();" [(ngModel)]="crossScaleZ" />
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary btn-xs" (click)="DisplayAllReaches()" >Display all</button>
+                        <button class="btn btn-primary btn-xs" (click)="ResetCameraAndControls()" ><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Refresh camera</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Open Files..</h4>
+      </div>
+      <div class="modal-body">
+       <uploader [IdeApp]="IdeApp"></uploader>
+      </div>
+      <div class="modal-footer">
+          <button type="button" class="btn btn-xs btn-default " data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-xs btn-primary" (click)="Init()" data-dismiss="modal">Save</button>
+      </div>
+    </div>
+  </div>
+</div>

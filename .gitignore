@@ -1,0 +1,10 @@
+node_modules
+typings
+public/three.js-master
+public/**/*.js
+public/**/*.js.map
+dist
+.tmp
+.sass-cache
+bower_components
+.vscode

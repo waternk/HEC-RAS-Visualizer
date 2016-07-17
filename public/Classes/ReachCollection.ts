@@ -1,0 +1,295 @@
+import { Cross } from './Cross';
+import { Reach } from './Reach';
+import { RiverPart } from './RiverPart';
+import { FileManager } from './FileManager';
+
+export class ReachCollection 
+{
+    private _reaches: Array<Reach>;
+   
+    public get Reaches() : Array<Reach>
+    {
+        return this._reaches;
+    }
+    
+    public set Reaches(v : Array<Reach>)
+    {
+        this._reaches = v;
+    }
+
+    constructor() 
+    {
+        this._reaches = new Array<Reach>();
+    }
+    
+    TranslateCross(cross: Cross, vec: THREE.Vector3)
+    {
+        var m = new THREE.Matrix4();
+        m.makeTranslation(vec.x, vec.y, vec.z);
+        for (var i = 0; i < cross.vertices.length; i++)
+        {
+            cross.vertices[i] = cross.vertices[i].applyMatrix4(m);  
+        }
+    }
+    
+    Normalize()
+    {
+
+        function scaleBetween(unscaledNum, minAllowed, maxAllowed, min, max) 
+        {
+            return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
+        }
+
+        var cross : Cross = this._reaches[0].Crosses[0];
+        var leftCoastFirst = cross.LeftCoast;
+        var rightCoastFirst = cross.RightCoast;
+        var mt = new THREE.Matrix4;
+        var mtBack = new THREE.Matrix4;
+        var mRotate = new THREE.Matrix4;
+        var vecx = new THREE.Vector3(1, 0, 0);
+        for(var r = 0; r < this._reaches.length; r++)
+        {
+            for (var i = 0; i < this._reaches[r].Crosses.length; i++)
+            {
+                /*
+                cross = this._reaches[r].Crosses[i];
+                var left = new THREE.Vector3(cross.LeftCoast.x, cross.LeftCoast.y, cross.LeftCoast.z);
+                var right = new THREE.Vector3(cross.RightCoast.x, cross.RightCoast.y, cross.RightCoast.z);
+                var obala = new THREE.Vector3(cross.LeftCoast.x, 0, cross.LeftCoast.z);
+
+                obala.sub(new THREE.Vector3(cross.RightCoast.x, 0, cross.RightCoast.z));
+                obala.normalize();
+                // var angle = Math.acos(obala.dot(vecx) / (obala.length()* vecx.length()));
+                // mRotate = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0,1,0), angle);
+                var quaternion = new THREE.Quaternion().setFromUnitVectors(vecx, obala);
+                mRotate = new THREE.Matrix4().makeRotationFromQuaternion(quaternion);
+                mt.makeTranslation(-cross.vertices[0].x, -cross.vertices[0].y, -cross.vertices[0].z);
+                mtBack.makeTranslation(left.x - leftCoastFirst.x, 0, left.z - leftCoastFirst.z);
+                for (var j = 0; j < cross.vertices.length; j++)
+                {
+                    cross.vertices[j].applyMatrix4(mt);
+                    cross.vertices[j].applyMatrix4(mRotate);
+                    cross.vertices[j].applyMatrix4(mtBack);
+                }
+                
+                
+                // if(cross.vertices[cross.vertices.length -1].x < 0 &&
+                //   cross.vertices[cross.vertices.length -1].y < 0
+                // )
+                //     this.TranslateCross(cross, new THREE.Vector3(right.x - rightCoastFirst.x, 0, right.z - rightCoastFirst.z));
+                // else
+                //this.TranslateCross(cross, new THREE.Vector3(left.x - leftCoastFirst.x, 0, left.z - leftCoastFirst.z));
+
+
+                */
+
+
+                cross = this._reaches[r].Crosses[i];
+                var newLeftX = cross.LeftCoast.x - leftCoastFirst.x;
+                var newLeftZ = cross.LeftCoast.z - leftCoastFirst.z;
+                
+                var newRightX = cross.RightCoast.x - rightCoastFirst.x;
+                var newRightZ = cross.RightCoast.z - rightCoastFirst.z;
+                
+                var firstVertex = cross.vertices[0];
+                var lastVertex = cross.vertices[cross.vertices.length-1];
+                
+                var lc = new THREE.Vector3(cross.LeftCoast.x, 0, cross.LeftCoast.z);
+                var rc = new THREE.Vector3(cross.RightCoast.x, 0, cross.RightCoast.z);
+                
+                var subVecGlobal = new THREE.Vector3();
+                subVecGlobal.subVectors(rc, lc);
+                subVecGlobal.normalize();
+                
+                var subVecLocal = new THREE.Vector3();
+                subVecLocal.subVectors(lastVertex, firstVertex);
+                subVecLocal.normalize();
+
+                //var angle = Math.acos(subVecGlobal.dot(subVecLocal)/(subVecGlobal.length() * subVecLocal.length()));
+                //var axis = new THREE.Vector3(0, 1, 0);
+                var quaternion = new THREE.Quaternion().setFromUnitVectors(subVecLocal, subVecGlobal);
+                mRotate = new THREE.Matrix4().makeRotationFromQuaternion(quaternion);
+                mt.makeTranslation(-cross.vertices[0].x, -cross.vertices[0].y, -cross.vertices[0].z)
+                mtBack.makeTranslation(newLeftX, 0, newLeftZ);
+                //mRotate.makeRotationAxis(axis, angle);
+                
+                for (var j = 0; j < cross.vertices.length; j++) 
+                {
+                    cross.vertices[j].applyMatrix4(mt);
+                    var quaternion = new THREE.Quaternion().setFromUnitVectors(subVecLocal, subVecGlobal);
+                    mRotate = new THREE.Matrix4().makeRotationFromQuaternion(quaternion);
+                }
+                var vg = subVecGlobal.subVectors(rc, lc);
+                var vl = subVecLocal.subVectors(lastVertex, firstVertex);
+                var lxl = new THREE.Vector3(vl.x, vl.y, vl.z), 
+                lxg = new THREE.Vector3(vg.x, vg.y, vg.z);
+                var kx = lxg.length() / lxl.length(); 
+                
+                for (var j = 0; j < cross.vertices.length; j++) 
+                {
+                    cross.vertices[j].applyMatrix4(new THREE.Matrix4().makeScale(kx, 1, 1));
+                    cross.vertices[j].applyMatrix4(mRotate);
+                    cross.vertices[j].applyMatrix4(mtBack);   
+                }
+
+                subVecGlobal.subVectors(rc, lc);
+                subVecLocal.subVectors(lastVertex, firstVertex);
+            }
+        }
+    }
+
+    PushReach(reach: Reach)
+    {
+        this._reaches.push(reach);
+    }
+
+    Clear()
+    {
+        this._reaches = [];
+    }
+    
+    public AddReachesLikeMeshToScene(scene: THREE.Scene, labelScene: THREE.Scene, camera: THREE.Camera, cameraHUD: THREE.Camera, canvas: HTMLElement, scaleVector?: THREE.Vector3)
+    {
+        for(var r = 0; r < this.Reaches.length; r++)
+        {
+            this.Reaches[r].AddToSceneLikeMesh(scene, labelScene, camera, cameraHUD, scaleVector)
+        }
+    }
+    
+    public AddReachesLikeLinesToScene(scene: THREE.Scene, labelScene: THREE.Scene, camera: THREE.Camera, cameraHUD: THREE.Camera, canvas: HTMLElement, scaleVector?: THREE.Vector3)
+    {
+
+        for(var r = 0; r < this.Reaches.length; r++)
+        {
+            this.Reaches[r].AddToSceneLikeLines(scene, labelScene, camera, cameraHUD, scaleVector);
+        }
+    }
+    
+    SortCrossesByPositionSelectionSort()
+    {
+        for(var r = 0; r < this._reaches.length; r++)
+        {
+            for (var i = 0; i < this._reaches[r].Crosses.length - 1; i++) 
+            {
+                for (var j = i + 1; j < this._reaches[r].Crosses.length; j++)
+                {
+                    if(this._reaches[r].Crosses[i].Position > this._reaches[r].Crosses[j].Position)
+                    {
+                        var tmp = this._reaches[r].Crosses[i];
+                        this._reaches[r].Crosses[i] = this._reaches[r].Crosses[j];
+                        this._reaches[r].Crosses[j] = tmp;
+                    }
+                }
+            }
+        }
+    }
+    
+    GetRandomColor() 
+    {
+        var letters = '0123456789ABCDEF'.split('');
+        var color = '#';
+        for (var i = 0; i < 6; i++ ) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+    
+    LoadCrosses(input: String, scale: number, ratio:number, callback: Function)
+    {
+        var reaches = input.split('reach');
+            for (var r = 1; r < reaches.length; r++) 
+            {
+                var reach = new Reach();
+                
+                var crossesInputs = reaches[r].split('presek');
+                reach.Name = crossesInputs[0];
+                 
+                for (var i = 1; i < crossesInputs.length; i++)
+                {
+                    var cross = new Cross();
+                    var crossInput = crossesInputs[i];
+                    var lines = crossInput.split('\n');    
+                    var lineNum = 1;
+                    cross.Position = Number(lines[lineNum++]);
+                    var lcost = lines[lineNum++].split(" ");
+                    cross.LeftCoast = {x: Number(lcost[0]) * scale, z: Number(lcost[1]) * scale};
+                    var rcost = lines[lineNum++].split(" ");
+                    cross.RightCoast = {x: Number(rcost[0]) * scale , z: Number(rcost[1]) * scale};
+                    
+                    var arr = [];
+
+                    for(var line = lineNum; line < lines.length-1; line++)
+                    {
+                        var lineAfterSplit = lines[line].split(" ");
+                        var x : number = Number(lineAfterSplit[0]);
+                        var y : number = Number(lineAfterSplit[1]);
+
+                        arr.push(new THREE.Vector3((x as number) * scale, (y as number) * scale));
+
+                    }
+                    cross.setVerticesByArray(new THREE.SplineCurve3(arr).getPoints(100));
+                    reach.Crosses.push(cross);  
+                }
+                reach.Color = this.GetRandomColor();
+                this.PushReach(reach);
+            } 
+            
+            if(callback)
+            {
+                callback();
+            }
+    }
+
+    LoadCrossesFromFile(url, scale: number, ratio:number, callback: Function)
+    {
+        var fileManager = new FileManager();
+        
+        fileManager.FileOpen(url, this, (text) => {
+            
+            var reaches = text.split('reach');
+            for (var r = 1; r < reaches.length; r++) 
+            {
+                var reach = new Reach();
+                
+                var crossesInputs = reaches[r].split('presek');
+                reach.Name = crossesInputs[0];
+                 
+                for (var i = 1; i < crossesInputs.length; i++)
+                {
+                    var cross = new Cross();
+                    var crossInput = crossesInputs[i];
+                    var lines = crossInput.split('\n');    
+                    var lineNum = 1;
+                    cross.Position = Number(lines[lineNum++]);
+                    var lcost = lines[lineNum++].split(" ");
+                    cross.LeftCoast = {x: (lcost[0] as number) * scale, z: (lcost[1] as number) * scale};
+                    var rcost = lines[lineNum++].split(" ");
+                    cross.RightCoast = {x: (rcost[0] as number) * scale , z: (rcost[1] as number) * scale};
+                    
+                    var arr = [];
+
+                    for(var line = lineNum; line < lines.length-1; line++)
+                    {
+                        var lineAfterSplit = lines[line].split(" ");
+                        var x : number = Number(lineAfterSplit[0]);
+                        var y : number = Number(lineAfterSplit[1]);
+
+                        arr.push(new THREE.Vector3((x as number) * scale, (y as number) * scale));
+
+                    }
+                    cross.setVerticesByArray(new THREE.SplineCurve3(arr).getPoints(100));
+                    reach.Crosses.push(cross);  
+                }
+                reach.Color = this.GetRandomColor();
+                this.PushReach(reach);
+            } 
+            
+            if(callback)
+            {
+                callback();
+            } 
+            
+        });
+    }
+    
+}

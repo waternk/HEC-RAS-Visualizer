@@ -1,0 +1,21 @@
+{
+  "name": "bower",
+  "description": "",
+  "main": "bower",
+  "authors": [
+    "Filip Tubic <tubefilip@gmail.com>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/filiptubic/Danube-Reconstruction-master",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "d3": "^3.5.17"
+  }
+}
