@@ -136,23 +136,78 @@ export class Reach {
 
     public AddToSceneLikeMesh(scene: THREE.Scene, labelScene: THREE.Scene, camera: THREE.Camera, cameraHUD: THREE.Camera, scaleVector?: THREE.Vector3)
     {
+        var parts = new Array<RiverPart>();
         for (var i = 0; i < this.Crosses.length - 1; i++)
         {
             var rp = new RiverPart(this.Crosses[i], this.Crosses[i + 1]);
             rp.setFaces();
-            rp.AddToSceneLikeMesh(scene, this._color, scaleVector);
+            parts.push(rp);
         }
+        scene.add(this.CreateMesh(parts, scaleVector));
     }
 
     public AddToSceneLikeLines(scene: THREE.Scene, labelScene: THREE.Scene, camera: THREE.Camera, cameraHUD: THREE.Camera, scaleVector?: THREE.Vector3)
     {
+        var crosses = new Array<Cross>();
+        var indices = new Array<number>();
+        var numOfAllVertices = 0;
+
         for (var i = 0; i < this.Crosses.length; i++)
         {
             var cross = this.Crosses[i];
-            var meshCross = new THREE.Line(cross, this._basicMaterial);
-            meshCross.scale.set(scaleVector.x,scaleVector.y,scaleVector.z);
-            scene.add(meshCross);
+            crosses.push(cross);
+            numOfAllVertices += cross.vertices.length;
         }
+        
+        var positions = new Float32Array(numOfAllVertices * 3);
+        var offset = 0;
+        var offsetInd = 0;
+        for (var i = 0; i < crosses.length; i++) 
+        {
+            var cross = crosses[i];
+            var vertices = cross.vertices;
+            
+            for (var j = 0; j < vertices.length; j++) 
+            {
+                positions[j * 3 + offset] = vertices[j].x * scaleVector.x;
+                positions[j * 3 + 1 + offset] = vertices[j].y * scaleVector.y;
+                positions[j * 3 + 2 + offset] = vertices[j].z * scaleVector.z;
+            }
+
+            for (var j = 0; j < vertices.length - 1; j++) 
+            {
+                indices.push(j + offsetInd);
+                indices.push(j + 1 + offsetInd);
+            }
+            offsetInd += vertices.length;
+            offset += vertices.length * 3;
+        }
+        var geometry = new THREE.BufferGeometry();
+        geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setIndex(new THREE.BufferAttribute(new Uint16Array(indices), 1));
+        var line = new THREE.LineSegments(geometry, this._basicMaterial);
+        
+        scene.add(line);        
+    }
+
+    public CreateMesh(parts: Array<RiverPart>, scaleVector?: THREE.Vector3) : THREE.Mesh
+    {
+        var geo = new THREE.Geometry();
+        for (var index = 0; index < parts.length; index++) 
+        {
+            var part = parts[index];
+            geo.mergeMesh(new THREE.Mesh(part));
+        }
+
+        var basicMaterial = new THREE.MeshLambertMaterial({ color: this._color, side: THREE.DoubleSide,  wireframe: false});
+        geo.computeFaceNormals();
+        geo.computeVertexNormals();
+        
+        var mesh = new THREE.Mesh(geo, basicMaterial);
+        if(scaleVector)
+            mesh.scale.set(scaleVector.x, scaleVector.y, scaleVector.z);
+
+        return mesh;
     }
 
     public ResetToOrigin()

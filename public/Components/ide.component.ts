@@ -166,6 +166,61 @@ export class IdeComponent implements OnInit
         this.HECRASInputs = [];
     }
 
+    ZoomAll()
+    {
+        var radius = null, center = null; 
+
+        if(this.DisplayView.view == 'line')
+        {
+            this.scene.traverse((object: THREE.Object3D)=>
+            {
+                if(object instanceof THREE.LineSegments)
+                {
+                    radius = (object.geometry as THREE.BufferGeometry).boundingSphere.radius;
+                    center = (object.geometry as THREE.BufferGeometry).center();
+                }
+            });
+        }
+        else
+        {
+            var geo = new THREE.Geometry();
+            this.scene.traverse((object: THREE.Object3D)=>
+            {
+                if(object instanceof THREE.Mesh)
+                {
+                    var geometry = <THREE.Geometry> object.geometry;
+                    
+                    if(object.geometry instanceof THREE.Geometry)
+                        geo.mergeMesh(new THREE.Mesh(geometry));
+                }
+            });  
+            
+            geo.computeBoundingSphere();
+            center = geo.center();
+            console.log(center);
+            radius = geo.boundingSphere.radius;
+        }
+
+        var width = radius;
+        var height = width * this.ratio; 
+        this.camera.left = -width;
+        this.camera.right = width;
+        this.camera.top = height;
+        this.camera.bottom = -height;
+        
+        //var spheregeo = new THREE.SphereGeometry(radius);
+        
+        //spheregeo.applyMatrix(new THREE.Matrix4().makeTranslation(-center.x, 0, -center.z));
+        //var spheregeoMesh = new THREE.Mesh(spheregeo, new THREE.MeshBasicMaterial({color:0x000000, wireframe: true}))  
+        
+        this.camera.lookAt(new THREE.Vector3(center.x, center.y, center.z));
+        this.controls.target.set(center.x, center.y, center.z);
+        this.controls.target0.set(center.x, center.y, center.z);
+        this.camera.zoom = 1;
+        //this.scene.add(spheregeoMesh);
+        this.camera.updateProjectionMatrix();
+    }
+
     ChangeView()
     {
         if(ideApp.selectedReach)

@@ -85,12 +85,17 @@
                                     <label for="inputZ" class="col-md-1 control-label">Z: </label>
                                     <input id="inputZ"  type="number" (ngModelChange)="ChangeView();" [(ngModel)]="camera.position.z" />
                                 </div>
+                                <div>
+                                    <label for="zoom" class="col-md-1 control-label">Zoom: </label>
+                                    <input id="zoom"  type="number" (ngModelChange)="ChangeView();" [(ngModel)]="camera.zoom" />
+                                </div>
                             </div>
                         </div>-->
                     </div>
                     <div>
                         <button class="btn btn-primary btn-xs" (click)="DisplayAllReaches()" >Display all</button>
                         <button class="btn btn-primary btn-xs" (click)="ResetCameraAndControls()" ><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Refresh camera</button>
+                        <button class="btn btn-primary btn-xs" (click)="ZoomAll()">Zoom All</button>
                     </div>
                 </div>
             </div>

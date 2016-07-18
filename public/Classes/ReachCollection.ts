@@ -113,11 +113,66 @@ export class ReachCollection
     
     public AddReachesLikeLinesToScene(scene: THREE.Scene, labelScene: THREE.Scene, camera: THREE.Camera, cameraHUD: THREE.Camera, canvas: HTMLElement, scaleVector?: THREE.Vector3)
     {
+        var indices = new Array<number>();
+        var positions;
+        var numOfAllVertices = 0;
+        var offset = 0;
+        var offsetInd = 0;
 
         for(var r = 0; r < this.Reaches.length; r++)
         {
-            this.Reaches[r].AddToSceneLikeLines(scene, labelScene, camera, cameraHUD, scaleVector);
+            var reach = this.Reaches[r];
+            
+            for (var i = 0; i < reach.Crosses.length; i++)
+            {
+                var cross = reach.Crosses[i];
+                numOfAllVertices += cross.vertices.length;
+            }
         }
+        
+        positions = new Float32Array(numOfAllVertices * 3);
+
+        for(var r = 0; r < this.Reaches.length; r++)
+        {
+            var reach = this.Reaches[r];
+            
+            for (var i = 0; i < reach.Crosses.length; i++) 
+            {
+                var cross = reach.Crosses[i];
+                var vertices = cross.vertices;
+                
+                for (var j = 0; j < vertices.length; j++) 
+                {
+                    positions[j * 3 + offset] = vertices[j].x * scaleVector.x;
+                    positions[j * 3 + 1 + offset] = vertices[j].y * scaleVector.y;
+                    positions[j * 3 + 2 + offset] = vertices[j].z * scaleVector.z;
+                }
+
+                for (var j = 0; j < vertices.length - 1; j++) 
+                {
+                    indices.push(j + offsetInd);
+                    indices.push(j + 1 + offsetInd);
+                }
+                offsetInd += vertices.length;
+                offset += vertices.length * 3;
+            }
+        }
+
+        for (var i = 0; i < positions.length; i++) 
+        {
+            var element = positions[i];
+        }
+        
+        for (var i = 0; i < indices.length; i++) 
+        {
+            var ind = indices[i];
+        }
+
+        var geometry = new THREE.BufferGeometry();
+        geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(indices), 1));
+        var line = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0x0000ff }));
+        scene.add(line); 
     }
     
     SortCrossesByPositionSelectionSort()

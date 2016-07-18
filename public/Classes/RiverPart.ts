@@ -44,13 +44,16 @@ export class RiverPart extends THREE.Geometry
 
     public AddToSceneLikeMesh(scene: THREE.Scene, color?: string, scaleVector?: THREE.Vector3)
     {
+        scene.add(this.CreateMesh(color, scaleVector));
+    }
+
+    public CreateMesh(color?: string, scaleVector?: THREE.Vector3) : THREE.Mesh
+    {
         var basicMaterial = new THREE.MeshLambertMaterial({ color: color, side: THREE.DoubleSide,  wireframe: false});
-             
-        
         this.computeFaceNormals();
         this.computeVertexNormals();
         var meshRiverPart = new THREE.Mesh(this, basicMaterial);
         meshRiverPart.scale.set(scaleVector.x, scaleVector.y, scaleVector.z);
-        scene.add(meshRiverPart);
+        return meshRiverPart;
     }
 }
