@@ -10,7 +10,7 @@
 
 # Introduction
 This project is designed for presenting HEC-RAS geometry on the Web.  
-It consists of two sub-project. The first is designed for translating HEC-RAS geometry file, written in C++. The Second is Node.js application that loads translated geometry file and presents it with Three.js library.
+It consists of two sub-project. The first is designed for translating HEC-RAS geometry file, written in C++. The Second is Node.js application that loads translated geometry file and presents it with Three.js library.</br>
 <b>NOTE: This application work only under *NIX like systems for now.</b>
 # Installation
 To run this program you need to complete the following steps:
