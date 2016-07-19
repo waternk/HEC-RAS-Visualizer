@@ -89,7 +89,8 @@ export class IdeComponent implements OnInit, AfterViewChecked
     cameraHUD: THREE.Camera;
     scene: THREE.Scene;
     labelScene: THREE.Scene;
-    object3D: THREE.AxisHelper;
+    hudScene: THREE.Scene;
+    AxesHUD: THREE.Object3D;
     Plane: THREE.Plane;
     PointLight: THREE.PointLight;
     AmbientLight: THREE.AmbientLight;
@@ -140,6 +141,7 @@ export class IdeComponent implements OnInit, AfterViewChecked
         this.reachCollection.Clear();
         this.ClearScene(this.scene);
         this.ClearScene(this.labelScene);
+        
         this.selectedReach = null;
         this.Reaches = [];
         this.LinesButtonOnClick(this.LinesButton.nativeElement);
@@ -176,9 +178,48 @@ export class IdeComponent implements OnInit, AfterViewChecked
         this.CreateLight();
         this.CreateCamera();
         this.CreateCameraHUD();
+        this.CreateHUD(this.hudScene);
         this.CreateControls();
         this.SetLight();
         this.HECRASInputs = [];
+    }
+
+    CreateHUD(scene: THREE.Scene)
+    {
+        this.AxesHUD = this.buildAxes(0.1);
+        this.AxesHUD.applyMatrix(new THREE.Matrix4().makeTranslation(-0.8, -0.8, 0));
+        scene.add(this.AxesHUD);
+    }
+
+    buildAxes(length) 
+    {
+        
+        var axes = new THREE.Object3D();
+        axes.add(this.buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( length, 0, 0 ), 0xFF0000, false )); // +X
+        axes.add(this.buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, length, 0 ), 0x00FF00, false )); // +Y
+        axes.add(this.buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, length ), 0x0000FF, false )); // +Z
+        return axes;
+    }
+
+    buildAxis( src, dst, colorHex, dashed ) 
+    {
+        var geom = new THREE.Geometry(),
+            mat; 
+
+        if(dashed) {
+            mat = new THREE.LineDashedMaterial({ linewidth: 3, color: colorHex, dashSize: 3, gapSize: 3 });
+        } else {
+            mat = new THREE.LineBasicMaterial({ linewidth: 3, color: colorHex });
+        }
+
+        geom.vertices.push( src.clone() );
+        geom.vertices.push( dst.clone() );
+        geom.computeLineDistances(); // This one is SUPER important, otherwise dashed lines will appear as simple plain lines
+
+        var axis = new THREE.Line( geom, mat, THREE.LinePieces );
+
+        return axis;
+
     }
 
     ngAfterViewChecked()
@@ -370,6 +411,7 @@ export class IdeComponent implements OnInit, AfterViewChecked
     {
         this.ClearScene(this.scene);
         this.ClearScene(this.labelScene);
+        
         this.selectedReach = null;
         var scaleVector3 = new THREE.Vector3(this.crossScaleX, this.crossScaleY, this.crossScaleZ);
 
@@ -423,6 +465,7 @@ export class IdeComponent implements OnInit, AfterViewChecked
     {
         this.scene = new THREE.Scene();
         this.labelScene = new THREE.Scene();
+        this.hudScene = new THREE.Scene();
     }
 
     CreateCamera()
@@ -518,11 +561,14 @@ export class IdeComponent implements OnInit, AfterViewChecked
 
     Render()
     {
+        ideApp.AxesHUD.setRotationFromQuaternion(ideApp.camera.quaternion);
         ideApp.renderer.clear();
         ideApp.renderer.render(ideApp.scene, ideApp.camera);
         ideApp.renderer.clearDepth();
         if(ideApp.showLabels)
             ideApp.renderer.render(ideApp.labelScene, ideApp.cameraHUD);
+        ideApp.renderer.clearDepth();
+        ideApp.renderer.render(ideApp.hudScene, new THREE.Camera());
     }
 
 }

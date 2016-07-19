@@ -14,7 +14,7 @@
     "node": "registry:dt/node#6.0.0+20160621231320",
     "serve-favicon": "registry:dt/serve-favicon#0.0.0+20160316155526",
     "serve-static": "registry:dt/serve-static#0.0.0+20160606155157",
-    "three": "github:DefinitelyTyped/DefinitelyTyped/threejs/three.d.ts#c6c3d3e65dd2d7035428f9c7b371ec911ff28542",
+    "three": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/threejs/three.d.ts",
     "three-detector": "github:DefinitelyTyped/DefinitelyTyped/threejs/three-effectcomposer.d.ts#48f20e97bfaf70fc1a9537b38aed98e9749be0ae",
     "three-effectscomposer": "github:DefinitelyTyped/DefinitelyTyped/threejs/detector.d.ts#48f20e97bfaf70fc1a9537b38aed98e9749be0ae",
     "three-orbitcontrol": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/threejs/three-orbitcontrols.d.ts",
@@ -22,6 +22,7 @@
     "three-shaderpass": "github:DefinitelyTyped/DefinitelyTyped/threejs/three-shaderpass.d.ts#ee05b1163d8da7f16719f08d52f70ab524f1003a",
     "three-trackball": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/threejs/three-trackballcontrols.d.ts",
     "three-trackballorthocontrol": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/threejs/three-orthographictrackballcontrols.d.ts"
+    
   },
   "dependencies": {
     "d3": "registry:npm/d3#3.0.0+20160627165201",
