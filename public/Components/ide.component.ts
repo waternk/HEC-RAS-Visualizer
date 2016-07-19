@@ -82,7 +82,6 @@ export class IdeComponent implements OnInit, AfterViewChecked
     crossScaleY: number = 1;
     crossScaleZ: number = 1;
     Reaches: Array<Reach>;
-    //showLabels: HTMLElement;
     showLabels: boolean;
     divCanvas: HTMLElement;
     fileManager: FileManager;
@@ -143,6 +142,7 @@ export class IdeComponent implements OnInit, AfterViewChecked
         this.ClearScene(this.labelScene);
         this.selectedReach = null;
         this.Reaches = [];
+        this.LinesButtonOnClick(this.LinesButton.nativeElement);
         if(this.HECRASInputs.length > 0)
         {
             this.initReachCollection(this.HECRASInputs, () =>
@@ -186,9 +186,9 @@ export class IdeComponent implements OnInit, AfterViewChecked
 
     }
 
-    ToggleButton(event) : boolean
+    ToggleButton(element: HTMLElement) : boolean
     {
-        var ClassList = event.currentTarget.classList;
+        var ClassList = element.classList;
         var i = 0;
         while (i < ClassList.length && ClassList[i] != "active")i++;
         $(event.currentTarget).blur();
@@ -204,32 +204,32 @@ export class IdeComponent implements OnInit, AfterViewChecked
         }
     }
 
-    ToggleButtonGroup(event: any, dependencies: Array<ElementRef>)
+    ToggleButtonGroup(element: HTMLElement, dependencies: Array<ElementRef>)
     {
-        var ClassList = event.currentTarget.classList;
+        var ClassList = element.classList;
         ClassList.add("active");
         for (var i = 0; i < dependencies.length; i++)
             dependencies[i].nativeElement.classList.remove("active");;
-        $(event.currentTarget).blur();
+        $(element).blur();
     }
 
-    LinesButtonOnClick(event: any)
+    LinesButtonOnClick(element: HTMLElement)
     {
-        ideApp.ToggleButtonGroup(event, [ideApp.MeshButton])
+        ideApp.ToggleButtonGroup(element, [ideApp.MeshButton])
         ideApp.DisplayView.view = 'line';
         ideApp.ChangeView();
     }
 
-    MeshButtonOnClick(event)
+    MeshButtonOnClick(element: HTMLElement)
     {
-        ideApp.ToggleButtonGroup(event, [ideApp.LinesButton])
+        ideApp.ToggleButtonGroup(element, [ideApp.LinesButton])
         ideApp.DisplayView.view = 'mesh';
         ideApp.ChangeView();
     }
 
-    RotateButtonOnClick(event)
+    RotateButtonOnClick(element: HTMLElement)
     {
-        var pressed: boolean = ideApp.ToggleButton(event);
+        var pressed: boolean = ideApp.ToggleButton(element);
 
         if(pressed)
             ideApp.controls.noRotate = false;
@@ -238,29 +238,29 @@ export class IdeComponent implements OnInit, AfterViewChecked
         ideApp.controls.update();
     }
 
-    ZoomInButtonOnClick(event)
+    ZoomInButtonOnClick(element: HTMLElement)
     {
         ideApp.camera.zoom /=0.9;
         ideApp.camera.updateProjectionMatrix();
-        $(event.currentTarget).blur();
+        $(element).blur();
     }
 
-    ZoomOutButtonOnClick(event)
+    ZoomOutButtonOnClick(element: HTMLElement)
     {
         ideApp.camera.zoom *=0.9;
         ideApp.camera.updateProjectionMatrix();
-        $(event.currentTarget).blur();
+        $(element).blur();
     }
 
-    LabelButtonOnClick($event)
+    LabelButtonOnClick(element: HTMLElement)
     {
-        var pressed: boolean = ideApp.ToggleButton(event);
+        var pressed: boolean = ideApp.ToggleButton(element);
         ideApp.showLabels = pressed;
     }
 
-    MoveButtonOnClick(event)
+    MoveButtonOnClick(element: HTMLElement)
     {
-        var pressed: boolean = ideApp.ToggleButton(event);
+        var pressed: boolean = ideApp.ToggleButton(element);
 
         if(pressed)
             ideApp.controls.noPan = false;
