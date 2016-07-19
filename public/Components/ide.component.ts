@@ -1,4 +1,4 @@
-import { Component, OnInit, Injectable, ViewChild } from '@angular/core';
+import { Component, OnInit, Injectable, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { UploaderComponent } from './uploader.component';
 import { Reach } from '../Classes/Reach';
 import { Cross } from '../Classes/Cross';
@@ -53,13 +53,26 @@ import * as _ from 'lodash';
         cursor: pointer;
     }
 
+    .btn:focus, .btn:active{
+        outline: none !important;
+    }
+
     `],
     directives: [UploaderComponent]
 })
 
-export class IdeComponent implements OnInit
+export class IdeComponent implements OnInit, AfterViewChecked
 {
     @ViewChild(UploaderComponent) Uploader: UploaderComponent;
+    @ViewChild('ZoomAllButton') ZoomAllButton: ElementRef;
+    @ViewChild('ZoomInButton') ZoomInButton: ElementRef;
+    @ViewChild('ZoomOutButton') ZoomOutButton: ElementRef;
+    @ViewChild('RotateButton') RotateButton: ElementRef;
+    @ViewChild('MoveButton') MoveButton: ElementRef;
+    @ViewChild('LabelButton') LabelButton: ElementRef;
+    @ViewChild('MeshButton') MeshButton: ElementRef;
+    @ViewChild('LinesButton') LinesButton: ElementRef;
+
     IdeApp: IdeComponent;
     HECRASInputs: Array<String>;
     DisplayView: any;
@@ -69,7 +82,8 @@ export class IdeComponent implements OnInit
     crossScaleY: number = 1;
     crossScaleZ: number = 1;
     Reaches: Array<Reach>;
-    showLabels: HTMLElement;
+    //showLabels: HTMLElement;
+    showLabels: boolean;
     divCanvas: HTMLElement;
     fileManager: FileManager;
     camera: THREE.OrthographicCamera;
@@ -93,6 +107,7 @@ export class IdeComponent implements OnInit
         ideApp = this;
         this.DisplayView = { view: 'line' };
     }
+
 
     CloseModal()
     {
@@ -166,6 +181,94 @@ export class IdeComponent implements OnInit
         this.HECRASInputs = [];
     }
 
+    ngAfterViewChecked()
+    {
+
+    }
+
+    ToggleButton(event) : boolean
+    {
+        var ClassList = event.currentTarget.classList;
+        var i = 0;
+        while (i < ClassList.length && ClassList[i] != "active")i++;
+        $(event.currentTarget).blur();
+        if(i>=ClassList.length)
+        {
+            ClassList.add("active");
+            return true;
+        }
+        else
+        {
+            ClassList.remove("active");
+            return false;
+        }
+    }
+
+    ToggleButtonGroup(event: any, dependencies: Array<ElementRef>)
+    {
+        var ClassList = event.currentTarget.classList;
+        ClassList.add("active");
+        for (var i = 0; i < dependencies.length; i++)
+            dependencies[i].nativeElement.classList.remove("active");;
+        $(event.currentTarget).blur();
+    }
+
+    LinesButtonOnClick(event: any)
+    {
+        ideApp.ToggleButtonGroup(event, [ideApp.MeshButton])
+        ideApp.DisplayView.view = 'line';
+        ideApp.ChangeView();
+    }
+
+    MeshButtonOnClick(event)
+    {
+        ideApp.ToggleButtonGroup(event, [ideApp.LinesButton])
+        ideApp.DisplayView.view = 'mesh';
+        ideApp.ChangeView();
+    }
+
+    RotateButtonOnClick(event)
+    {
+        var pressed: boolean = ideApp.ToggleButton(event);
+
+        if(pressed)
+            ideApp.controls.noRotate = false;
+        else
+            ideApp.controls.noRotate = true;
+        ideApp.controls.update();
+    }
+
+    ZoomInButtonOnClick(event)
+    {
+        ideApp.camera.zoom /=0.9;
+        ideApp.camera.updateProjectionMatrix();
+        $(event.currentTarget).blur();
+    }
+
+    ZoomOutButtonOnClick(event)
+    {
+        ideApp.camera.zoom *=0.9;
+        ideApp.camera.updateProjectionMatrix();
+        $(event.currentTarget).blur();
+    }
+
+    LabelButtonOnClick($event)
+    {
+        var pressed: boolean = ideApp.ToggleButton(event);
+        ideApp.showLabels = pressed;
+    }
+
+    MoveButtonOnClick(event)
+    {
+        var pressed: boolean = ideApp.ToggleButton(event);
+
+        if(pressed)
+            ideApp.controls.noPan = false;
+        else
+            this.controls.noPan = true;
+        ideApp.controls.update();
+    }
+
     ZoomAll()
     {
         var radius = null, center = null; 
@@ -208,16 +311,16 @@ export class IdeComponent implements OnInit
         this.camera.top = height;
         this.camera.bottom = -height;
         
-        //var spheregeo = new THREE.SphereGeometry(radius);
+        var spheregeo = new THREE.SphereGeometry(radius);
         
-        //spheregeo.applyMatrix(new THREE.Matrix4().makeTranslation(-center.x, 0, -center.z));
-        //var spheregeoMesh = new THREE.Mesh(spheregeo, new THREE.MeshBasicMaterial({color:0x000000, wireframe: true}))  
+        spheregeo.applyMatrix(new THREE.Matrix4().makeTranslation(-center.x, 0, -center.z));
+        var spheregeoMesh = new THREE.Mesh(spheregeo, new THREE.MeshBasicMaterial({color:0x000000, wireframe: true}))  
         
         this.camera.lookAt(new THREE.Vector3(center.x, center.y, center.z));
         this.controls.target.set(center.x, center.y, center.z);
         this.controls.target0.set(center.x, center.y, center.z);
         this.camera.zoom = 1;
-        //this.scene.add(spheregeoMesh);
+        this.scene.add(spheregeoMesh);
         this.camera.updateProjectionMatrix();
     }
 
@@ -310,6 +413,10 @@ export class IdeComponent implements OnInit
     {
         this.controls = new THREE.OrthographicTrackballControls(this.camera, this.divCanvas);
         this.controls.addEventListener('change', this.Render);
+        this.controls.noRotate = true;
+        this.controls.noZoom = true;
+        this.controls.noPan = true;
+        this.controls.noRoll = true;
     }
     
     CreateScenes()

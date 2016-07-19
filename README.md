@@ -28,9 +28,8 @@ bower install
 npm start</pre></li>
 </li>
 </ul>
-
 # Application Screenshots
 <img src="screenshots/Screen Shot 2016-07-17 at 17.38.05.png" />
-<img src="screenshots/Screen Shot 2016-07-17 at 17.36.03.png" />
-<img src="screenshots/Screen Shot 2016-07-17 at 17.36.09.png" />
-<img src="screenshots/Screen Shot 2016-07-17 at 17.35.42.png" />
+<img src="screenshots/Screen Shot 2016-07-19 at 11.39.48.png" />
+<img src="screenshots/Screen Shot 2016-07-19 at 11.40.38.png" />
+<img src="screenshots/Screen Shot 2016-07-19 at 11.39.59.png" />

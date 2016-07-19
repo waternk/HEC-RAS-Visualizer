@@ -4,7 +4,7 @@
     });
 </script>
 <div class="noselect">
-    <div class="dropdown">
+    <div class="dropdown" style="margin-bottom:10px;">
     <button id="dLabel" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         FILE
         <span class="caret"></span>
@@ -13,7 +13,52 @@
         <li style="cursor: pointer" data-toggle="modal" data-target="#myModal"><a><span>Open</span></a></li>
     </ul>
     </div>
+    
     <div id="viewport" >
+        <div>
+            <div style="display:inline-block">
+                <button #ZoomAllButton id="zoomall" type="button" class="btn btn-default btn-xs">
+                    <i class="uk-icon-arrows-alt"></i>
+                </button>
+            </div>
+            <div style="display:inline-block">
+                <button #ZoomInButton (click)="ZoomInButtonOnClick($event)" type="button"  class="btn btn-default btn-xs">
+                    <i class="glyphicon glyphicon-zoom-in"></i>
+                </button>
+            </div>
+            <div style="display:inline-block">
+                <button #ZoomOutButton (click)="ZoomOutButtonOnClick($event)" type="button" class="btn btn-default btn-xs">
+                    <i class="glyphicon glyphicon-zoom-out"></i>
+                </button>
+            </div>
+            <div style="display:inline-block">
+                <button #RotateButton (click)="RotateButtonOnClick($event)" type = "button" class="btn btn-default btn-xs">
+                    <i class="glyphicon glyphicon-repeat"></i>
+                </button>
+            </div>
+            <div style="display:inline-block">
+                <button #MoveButton (click)="MoveButtonOnClick($event)" type="button" class="btn btn-default btn-xs">
+                    <i class="uk-icon-arrows"></i>
+                </button>
+            </div>
+            <div style="display:inline-block">
+                <button #LabelButton (click)="LabelButtonOnClick($event)" type="button" class="btn btn-default btn-xs">
+                    <i class="glyphicon glyphicon-font"></i>
+                </button>
+            </div>
+            <div style="display:inline-block">
+                <button #MeshButton (click)="MeshButtonOnClick($event)" type="button" class="btn btn-default btn-xs">
+                    <i class="uk-icon-cube"></i>
+                </button>
+            </div>
+            <div style="display:inline-block">
+                <button #LinesButton (click)="LinesButtonOnClick($event)" type = "button" class="btn btn-default btn-xs">
+                    <i class="uk-icon-area-chart"></i>
+                </button>
+            </div>
+            
+            
+        </div>
         <div id="canvas"></div>
     </div>
     <div style="float: right;" style="width:310px; float:right;">
@@ -41,7 +86,7 @@
             <h6 role="button" class="panel-heading" data-toggle="collapse" href="#collapse2"><span><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Other</span></h6>
             <div id="collapse2" class="panel-collapse collapse">
                 <div class="panel-body">
-                    <div>
+                    <!--<div>
                         Show labels <input type="checkbox" [(ngModel)]="showLabels" />
                     </div>
                     <div class="input-group">
@@ -52,7 +97,7 @@
                         <label class="radio-inline">
                             <input type="radio" [ngModel]="{checked: DisplayView.view == 'mesh'}"  (click)="DisplayView.view = 'mesh';" (ngModelChange)="ChangeView();" name="view" value="mesh">mesh
                         </label>
-                    </div>
+                    </div>-->
                     <div class="panel panel-default">
                         <h7>Scale Vector</h7>
                         <div class="panel-body">
@@ -92,11 +137,12 @@
                             </div>
                         </div>-->
                     </div>
-                    <div>
+                    <!--<div>
                         <button class="btn btn-primary btn-xs" (click)="DisplayAllReaches()" >Display all</button>
                         <button class="btn btn-primary btn-xs" (click)="ResetCameraAndControls()" ><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Refresh camera</button>
                         <button class="btn btn-primary btn-xs" (click)="ZoomAll()">Zoom All</button>
-                    </div>
+                        <button class="btn btn-primary btn-xs" (click)="SwitchControls()">Switch</button>
+                    </div>-->
                 </div>
             </div>
         </div>
