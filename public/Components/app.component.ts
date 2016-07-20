@@ -1,4 +1,4 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router-deprecated';
 import { IdeComponent} from './ide.component';
 
@@ -6,7 +6,6 @@ import { IdeComponent} from './ide.component';
     selector: 'my-app',
     template:
     `
-    <h1>{{Title}}</h1>
     <router-outlet></router-outlet>
     `
     ,

@@ -29,7 +29,12 @@ npm start</pre></li>
 </li>
 </ul>
 # Application Screenshots
-<img src="screenshots/Screen Shot 2016-07-17 at 17.38.05.png" />
-<img src="screenshots/Screen Shot 2016-07-19 at 11.39.48.png" />
-<img src="screenshots/Screen Shot 2016-07-19 at 11.40.38.png" />
-<img src="screenshots/Screen Shot 2016-07-19 at 11.39.59.png" />
+
+<img src="screenshots/Screen Shot 2016-07-20 at 11.50.30.png" />
+<img src="screenshots/Screen Shot 2016-07-20 at 11.51.07.png" />
+<img src="screenshots/Screen Shot 2016-07-20 at 11.51.10.png" />
+<img src="screenshots/Screen Shot 2016-07-20 at 11.51.29.png" />
+<img src="screenshots/Screen Shot 2016-07-20 at 11.51.38.png" />
+<img src="screenshots/Screen Shot 2016-07-20 at 11.51.48.png" />
+<img src="screenshots/Screen Shot 2016-07-20 at 11.51.54.png" />
+<img src="screenshots/Screen Shot 2016-07-20 at 11.52.24.png" />

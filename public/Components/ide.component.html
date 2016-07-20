@@ -3,9 +3,9 @@
         $('[data-toggle="tooltip"]').tooltip(); 
     });
 </script>
-<div class="noselect">
-    <div class="dropdown" style="margin-bottom:10px;">
-    <button id="dLabel" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+<div class="noselect" style="background-color:#eee;min-height:100%;min-width:100%;">
+    <div class="dropdown" style="margin-bottom:10px; width: 100%; background-color: #eee">
+    <button id="dLabel" type="button" style="outline: none;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         FILE
         <span class="caret"></span>
     </button>
@@ -15,7 +15,7 @@
     </div>
     
     <div id="viewport" >
-        <div>
+        <div id="controls">
             <div style="display:inline-block">
                 <button #ZoomAllButton id="zoomall" type="button" class="btn btn-default btn-xs">
                     <i class="uk-icon-arrows-alt"></i>
@@ -56,8 +56,6 @@
                     <i class="uk-icon-area-chart"></i>
                 </button>
             </div>
-            
-            
         </div>
         <div id="canvas"></div>
     </div>
@@ -86,18 +84,6 @@
             <h6 role="button" class="panel-heading" data-toggle="collapse" href="#collapse2"><span><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Other</span></h6>
             <div id="collapse2" class="panel-collapse collapse">
                 <div class="panel-body">
-                    <!--<div>
-                        Show labels <input type="checkbox" [(ngModel)]="showLabels" />
-                    </div>
-                    <div class="input-group">
-                        Model View: 
-                        <label class="radio-inline">
-                            <input type="radio" [ngModel]="{checked: DisplayView.view == 'line'}" (click)="DisplayView.view = 'line';" (ngModelChange)="ChangeView();"  name="view" value="line">line<br>
-                        </label>
-                        <label class="radio-inline">
-                            <input type="radio" [ngModel]="{checked: DisplayView.view == 'mesh'}"  (click)="DisplayView.view = 'mesh';" (ngModelChange)="ChangeView();" name="view" value="mesh">mesh
-                        </label>
-                    </div>-->
                     <div class="panel panel-default">
                         <h7>Scale Vector</h7>
                         <div class="panel-body">
@@ -115,34 +101,7 @@
                                     <input id="inputZ" style="width:50px" type="number" (ngModelChange)="ChangeView();" [(ngModel)]="crossScaleZ" />
                                 </div>
                             </div>
-                       <!--<h7>Camera Vector</h7>
-                        <div class="panel-body">
-                            <div >
-                                <div >
-                                    <label for="inputX" class="col-md-1 control-label">X: </label>
-                                    <input id="inputX"  type="number" (ngModelChange)="ChangeView();" [(ngModel)]="camera.position.x" />
-                                </div>
-                                <div>
-                                    <label for="inputY" class="col-md-1 control-label">Y: </label>
-                                    <input id="inputY"   type="number" (ngModelChange)="ChangeView();" [(ngModel)]="camera.position.y" />
-                                </div>
-                                <div >
-                                    <label for="inputZ" class="col-md-1 control-label">Z: </label>
-                                    <input id="inputZ"  type="number" (ngModelChange)="ChangeView();" [(ngModel)]="camera.position.z" />
-                                </div>
-                                <div>
-                                    <label for="zoom" class="col-md-1 control-label">Zoom: </label>
-                                    <input id="zoom"  type="number" (ngModelChange)="ChangeView();" [(ngModel)]="camera.zoom" />
-                                </div>
-                            </div>
-                        </div>-->
                     </div>
-                    <!--<div>
-                        <button class="btn btn-primary btn-xs" (click)="DisplayAllReaches()" >Display all</button>
-                        <button class="btn btn-primary btn-xs" (click)="ResetCameraAndControls()" ><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Refresh camera</button>
-                        <button class="btn btn-primary btn-xs" (click)="ZoomAll()">Zoom All</button>
-                        <button class="btn btn-primary btn-xs" (click)="SwitchControls()">Switch</button>
-                    </div>-->
                 </div>
             </div>
         </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, Injectable, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, Injectable, ViewChild, ElementRef, AfterViewChecked, AfterViewInit } from '@angular/core';
 import { UploaderComponent } from './uploader.component';
 import { Reach } from '../Classes/Reach';
 import { Cross } from '../Classes/Cross';
@@ -11,17 +11,20 @@ import * as _ from 'lodash';
     templateUrl: '/Components/ide.component.html',
     styles:[
     `
-    body {
-        padding: 50px;
-        font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-    }
-
     a {
         color: #00B7FF;
     }
 
     #canvas{
-        border:1px solid gray;
+        border:1px solid #eee;
+        position: relative; top: -25px;
+        z-index: 0;
+        background-color: white;
+    }
+    #controls{
+        position:relative;
+        left:5px;
+        z-index: 1;
     }
     #viewport{
 
@@ -61,7 +64,7 @@ import * as _ from 'lodash';
     directives: [UploaderComponent]
 })
 
-export class IdeComponent implements OnInit, AfterViewChecked
+export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 {
     @ViewChild(UploaderComponent) Uploader: UploaderComponent;
     @ViewChild('ZoomAllButton') ZoomAllButton: ElementRef;
@@ -144,7 +147,7 @@ export class IdeComponent implements OnInit, AfterViewChecked
         
         this.selectedReach = null;
         this.Reaches = [];
-        this.LinesButtonOnClick(this.LinesButton.nativeElement);
+        
         if(this.HECRASInputs.length > 0)
         {
             this.initReachCollection(this.HECRASInputs, () =>
@@ -179,9 +182,19 @@ export class IdeComponent implements OnInit, AfterViewChecked
         this.CreateCamera();
         this.CreateCameraHUD();
         this.CreateHUD(this.hudScene);
-        this.CreateControls();
+        this.CreateControls(true, false, true, false);
         this.SetLight();
         this.HECRASInputs = [];
+    }
+
+    ngAfterViewChecked()
+    {
+        
+    }
+
+    ngAfterViewInit()
+    {
+        this.SetDefualtControls();
     }
 
     CreateHUD(scene: THREE.Scene)
@@ -222,9 +235,11 @@ export class IdeComponent implements OnInit, AfterViewChecked
 
     }
 
-    ngAfterViewChecked()
+    SetDefualtControls()
     {
-
+        this.LinesButtonOnClick(this.LinesButton.nativeElement);
+        this.MoveButtonOnClick(this.MoveButton.nativeElement);
+        this.RotateButtonOnClick(this.RotateButton.nativeElement);
     }
 
     ToggleButton(element: HTMLElement) : boolean
@@ -232,15 +247,17 @@ export class IdeComponent implements OnInit, AfterViewChecked
         var ClassList = element.classList;
         var i = 0;
         while (i < ClassList.length && ClassList[i] != "active")i++;
-        $(event.currentTarget).blur();
+        
         if(i>=ClassList.length)
         {
             ClassList.add("active");
+            $(element).blur();
             return true;
         }
         else
         {
             ClassList.remove("active");
+            $(element).blur();
             return false;
         }
     }
@@ -256,14 +273,14 @@ export class IdeComponent implements OnInit, AfterViewChecked
 
     LinesButtonOnClick(element: HTMLElement)
     {
-        ideApp.ToggleButtonGroup(element, [ideApp.MeshButton])
+        ideApp.ToggleButtonGroup(element, [ideApp.MeshButton]);
         ideApp.DisplayView.view = 'line';
         ideApp.ChangeView();
     }
 
     MeshButtonOnClick(element: HTMLElement)
     {
-        ideApp.ToggleButtonGroup(element, [ideApp.LinesButton])
+        ideApp.ToggleButtonGroup(element, [ideApp.LinesButton]);
         ideApp.DisplayView.view = 'mesh';
         ideApp.ChangeView();
     }
@@ -451,14 +468,14 @@ export class IdeComponent implements OnInit, AfterViewChecked
         this.renderer.setSize(divCanvas.clientWidth, divCanvas.clientHeight);
     }
 
-    CreateControls()
+    CreateControls(rotate?: boolean, zoom?: boolean, pan?: boolean, roll?: boolean)
     {
         this.controls = new THREE.OrthographicTrackballControls(this.camera, this.divCanvas);
         this.controls.addEventListener('change', this.Render);
-        this.controls.noRotate = true;
-        this.controls.noZoom = true;
-        this.controls.noPan = true;
-        this.controls.noRoll = true;
+        this.controls.noRotate = (rotate == (false || undefined) ) ? true : false;
+        this.controls.noZoom = (zoom == (false || undefined) ) ? true : false;
+        this.controls.noPan = (pan == (false || undefined) )? true : false;
+        this.controls.noRoll = (roll == (false || undefined) ) ? true : false;
     }
     
     CreateScenes()
