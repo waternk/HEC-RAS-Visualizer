@@ -17,6 +17,7 @@
   "dependencies": {
     "bootstrap": "^3.3.6",
     "d3": "^3.5.17",
-    "uikit": "^2.26.4"
+    "uikit": "^2.26.4",
+    "font-awesome": "fontawesome#^4.6.3"
   }
 }

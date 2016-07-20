@@ -17,49 +17,54 @@
     <div id="viewport" >
         <div id="controls">
             <div style="display:inline-block">
-                <button #ZoomAllButton id="zoomall" type="button" class="btn btn-default btn-xs">
+                <button #ZoomAllButton id="zoomall" (click)="ZoomAllButtonOnClick($event.currentTarget)" type="button" class="btn btn-default btn-xs controlButton">
                     <i class="uk-icon-arrows-alt"></i>
                 </button>
             </div>
             <div style="display:inline-block">
-                <button #ZoomInButton (click)="ZoomInButtonOnClick($event.currentTarget)" type="button"  class="btn btn-default btn-xs">
+                <button #ZoomInButton (click)="ZoomInButtonOnClick($event.currentTarget)" type="button"  class="btn btn-default btn-xs controlButton">
                     <i class="glyphicon glyphicon-zoom-in"></i>
                 </button>
             </div>
             <div style="display:inline-block">
-                <button #ZoomOutButton (click)="ZoomOutButtonOnClick($event.currentTarget)" type="button" class="btn btn-default btn-xs">
+                <button #ZoomOutButton (click)="ZoomOutButtonOnClick($event.currentTarget)" type="button" class="btn btn-default btn-xs controlButton">
                     <i class="glyphicon glyphicon-zoom-out"></i>
                 </button>
             </div>
             <div style="display:inline-block">
-                <button #RotateButton (click)="RotateButtonOnClick($event.currentTarget)" type = "button" class="btn btn-default btn-xs">
+                <button #RotateButton (click)="RotateButtonOnClick($event.currentTarget)" type = "button" class="btn btn-default btn-xs controlButton">
                     <i class="glyphicon glyphicon-repeat"></i>
                 </button>
             </div>
             <div style="display:inline-block">
-                <button #MoveButton (click)="MoveButtonOnClick($event.currentTarget)" type="button" class="btn btn-default btn-xs">
+                <button #MoveButton (click)="MoveButtonOnClick($event.currentTarget)" type="button" class="btn btn-default btn-xs controlButton">
                     <i class="uk-icon-arrows"></i>
                 </button>
             </div>
             <div style="display:inline-block">
-                <button #LabelButton (click)="LabelButtonOnClick($event.currentTarget)" type="button" class="btn btn-default btn-xs">
+                <button #LabelButton (click)="LabelButtonOnClick($event.currentTarget)" type="button" class="btn btn-default btn-xs controlButton">
                     <i class="glyphicon glyphicon-font"></i>
                 </button>
             </div>
             <div style="display:inline-block">
-                <button #MeshButton (click)="MeshButtonOnClick($event.currentTarget)" type="button" class="btn btn-default btn-xs">
+                <button #AxesHelperButton (click)="AxesHelperButtonOnClick($event.currentTarget)" type = "button" class="btn btn-default btn-xs controlButton">
+                    <i class="uk-icon-compass"></i>
+                </button>
+            </div>
+            <div style="display:inline-block">
+                <button #MeshButton (click)="MeshButtonOnClick($event.currentTarget)" type="button" class="btn btn-default btn-xs controlButton">
                     <i class="uk-icon-cube"></i>
                 </button>
             </div>
             <div style="display:inline-block">
-                <button #LinesButton (click)="LinesButtonOnClick($event.currentTarget)" type = "button" class="btn btn-default btn-xs">
+                <button #LinesButton (click)="LinesButtonOnClick($event.currentTarget)" type = "button" class="btn btn-default btn-xs controlButton">
                     <i class="uk-icon-area-chart"></i>
                 </button>
             </div>
         </div>
         <div id="canvas"></div>
     </div>
-    <div style="float: right;" style="width:310px; float:right;">
+    <div style="width:310px; float:right;">
         <div class="col-xs-11 panel panel-default">
             <h2>Options</h2>
             <h6 role="button" class="panel-heading" data-toggle="collapse" href="#collapse1"><span><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> List of reaches</span></h6>

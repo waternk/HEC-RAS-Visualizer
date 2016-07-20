@@ -17,7 +17,7 @@ import * as _ from 'lodash';
 
     #canvas{
         border:1px solid #eee;
-        position: relative; top: -25px;
+        position: relative; top: -30px;
         z-index: 0;
         background-color: white;
     }
@@ -25,6 +25,10 @@ import * as _ from 'lodash';
         position:relative;
         left:5px;
         z-index: 1;
+    }
+    .controlButton {
+        width: 24px;
+        height: 24px;
     }
     #viewport{
 
@@ -75,17 +79,18 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     @ViewChild('LabelButton') LabelButton: ElementRef;
     @ViewChild('MeshButton') MeshButton: ElementRef;
     @ViewChild('LinesButton') LinesButton: ElementRef;
-
+    @ViewChild('AxesHelperButton') AxesHelperButton: ElementRef;
     IdeApp: IdeComponent;
     HECRASInputs: Array<String>;
     DisplayView: any;
     ratio: number;
+    BoundingSphereRadius: number;
+    BoundingSphereCenter: THREE.Vector3;
     selectedReach: Reach;
     crossScaleX: number = 1;
     crossScaleY: number = 1;
     crossScaleZ: number = 1;
     Reaches: Array<Reach>;
-    showLabels: boolean;
     divCanvas: HTMLElement;
     fileManager: FileManager;
     camera: THREE.OrthographicCamera;
@@ -152,6 +157,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         {
             this.initReachCollection(this.HECRASInputs, () =>
             {
+                this.CalculateBoundingSphere();
                 this.DisplayAllReaches();
                 this.SetCamera();  
             });
@@ -182,7 +188,6 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         this.CreateCamera();
         this.CreateCameraHUD();
         this.CreateHUD(this.hudScene);
-        this.CreateControls(true, false, true, false);
         this.SetLight();
         this.HECRASInputs = [];
     }
@@ -237,6 +242,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
     SetDefualtControls()
     {
+        this.CreateControls(true, false, true, false);
         this.LinesButtonOnClick(this.LinesButton.nativeElement);
         this.MoveButtonOnClick(this.MoveButton.nativeElement);
         this.RotateButtonOnClick(this.RotateButton.nativeElement);
@@ -269,6 +275,11 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         for (var i = 0; i < dependencies.length; i++)
             dependencies[i].nativeElement.classList.remove("active");;
         $(element).blur();
+    }
+
+    AxesHelperButtonOnClick(element: HTMLElement)
+    {
+         this.AxesHelperButton.nativeElement.pressed = this.ToggleButton(this.AxesHelperButton.nativeElement);
     }
 
     LinesButtonOnClick(element: HTMLElement)
@@ -312,8 +323,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
     LabelButtonOnClick(element: HTMLElement)
     {
-        var pressed: boolean = ideApp.ToggleButton(element);
-        ideApp.showLabels = pressed;
+        ideApp.LabelButton.nativeElement.pressed = ideApp.ToggleButton(element);
     }
 
     MoveButtonOnClick(element: HTMLElement)
@@ -327,58 +337,68 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         ideApp.controls.update();
     }
 
-    ZoomAll()
+    CalculateBoundingSphere()
     {
-        var radius = null, center = null; 
-
-        if(this.DisplayView.view == 'line')
+        var vertices = new Array<THREE.Vector3>();
+        for (var r = 0; r < this.reachCollection.Reaches.length; r++) 
         {
-            this.scene.traverse((object: THREE.Object3D)=>
+            var reach = this.reachCollection.Reaches[r];
+            for (var c = 0; c < reach.Crosses.length; c++)
             {
-                if(object instanceof THREE.LineSegments)
+                var cross = reach.Crosses[c];
+                for (var v = 0; v < cross.vertices.length; v++)
                 {
-                    radius = (object.geometry as THREE.BufferGeometry).boundingSphere.radius;
-                    center = (object.geometry as THREE.BufferGeometry).center();
-                }
-            });
+                    vertices.push(cross.vertices[v]);  
+                }   
+            }
         }
-        else
-        {
-            var geo = new THREE.Geometry();
-            this.scene.traverse((object: THREE.Object3D)=>
-            {
-                if(object instanceof THREE.Mesh)
-                {
-                    var geometry = <THREE.Geometry> object.geometry;
-                    
-                    if(object.geometry instanceof THREE.Geometry)
-                        geo.mergeMesh(new THREE.Mesh(geometry));
-                }
-            });  
-            
-            geo.computeBoundingSphere();
-            center = geo.center();
-            console.log(center);
-            radius = geo.boundingSphere.radius;
-        }
+        var tmpG = new THREE.Geometry();
+        tmpG.vertices = vertices;
+        tmpG.computeBoundingSphere(); 
+        this.BoundingSphereRadius = tmpG.boundingSphere.radius;
+        this.BoundingSphereCenter = this.GetCenter(vertices);
+    }
 
-        var width = radius;
-        var height = width * this.ratio; 
+    GetCenter(vertices: Array<THREE.Vector3>) : THREE.Vector3
+    {
+        var min = Number.MAX_VALUE, max = 0;
+        var vecMin:THREE.Vector3, vecMax: THREE.Vector3;
+
+        for (var i = 0; i < vertices.length; i++)
+        {
+            var vertex = vertices[i];
+            var len = vertex.length();
+            if(len < min)
+            {
+                min = len;
+                vecMin = _.cloneDeep<THREE.Vector3>(vertex);
+            }
+            else if(len > max)
+            {
+                max = len;
+                vecMax = _.cloneDeep<THREE.Vector3>(vertex);;
+            }
+        }
+        var sub = _.cloneDeep<THREE.Vector3>(vecMax);
+        sub.sub(vecMin);
+        sub.multiplyScalar(0.5);
+        return vecMax.sub(sub);
+    }
+
+    ZoomAllButtonOnClick(element: HTMLElement)
+    {
+        var width = this.BoundingSphereRadius;
+        var height = width; 
         this.camera.left = -width;
         this.camera.right = width;
         this.camera.top = height;
         this.camera.bottom = -height;
         
-        var spheregeo = new THREE.SphereGeometry(radius);
-        
-        spheregeo.applyMatrix(new THREE.Matrix4().makeTranslation(-center.x, 0, -center.z));
-        var spheregeoMesh = new THREE.Mesh(spheregeo, new THREE.MeshBasicMaterial({color:0x000000, wireframe: true}))  
-        
-        this.camera.lookAt(new THREE.Vector3(center.x, center.y, center.z));
-        this.controls.target.set(center.x, center.y, center.z);
-        this.controls.target0.set(center.x, center.y, center.z);
+        this.camera.lookAt(new THREE.Vector3(this.BoundingSphereCenter.x, this.BoundingSphereCenter.y, this.BoundingSphereCenter.z));
+        this.controls.target.set(this.BoundingSphereCenter.x, this.BoundingSphereCenter.y, this.BoundingSphereCenter.z);
+        this.controls.target0.set(this.BoundingSphereCenter.x, this.BoundingSphereCenter.y, this.BoundingSphereCenter.z);
         this.camera.zoom = 1;
-        this.scene.add(spheregeoMesh);
+        
         this.camera.updateProjectionMatrix();
     }
 
@@ -411,17 +431,6 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         
         this.selectedReach.CreateLabelAsSprite(this.labelScene,this.camera, scaleVector3, this.ratio);
     
-    }
-
-    ResetCameraAndControls()
-    {
-        var lookAtVector = new THREE.Vector3(0,0, -1);
-        lookAtVector.applyQuaternion(this.camera.quaternion);
-        this.controls.target0.set(lookAtVector.x, lookAtVector.y, lookAtVector.z);
-        this.controls.up0.set(0, 1, 0);
-        this.controls.reset();
-        //7482696.417294 4946990.459081
-        this.SetCamera();
     }
 
     DisplayAllReaches()
@@ -468,14 +477,20 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         this.renderer.setSize(divCanvas.clientWidth, divCanvas.clientHeight);
     }
 
-    CreateControls(rotate?: boolean, zoom?: boolean, pan?: boolean, roll?: boolean)
+    CreateTrackBallControls(rotate?: boolean, zoom?: boolean, pan?: boolean, roll?: boolean)
     {
         this.controls = new THREE.OrthographicTrackballControls(this.camera, this.divCanvas);
         this.controls.addEventListener('change', this.Render);
-        this.controls.noRotate = (rotate == (false || undefined) ) ? true : false;
-        this.controls.noZoom = (zoom == (false || undefined) ) ? true : false;
-        this.controls.noPan = (pan == (false || undefined) )? true : false;
-        this.controls.noRoll = (roll == (false || undefined) ) ? true : false;
+        this.controls.noRotate = (rotate == false || undefined ) ? true : false;
+        this.controls.noZoom = (zoom == false || undefined ) ? true : false;
+        this.controls.noPan = (pan == false || undefined )? true : false;
+        this.controls.noRoll = (roll == false || undefined ) ? true : false;
+    }
+
+    CreateControls(rotate?: boolean, zoom?: boolean, pan?: boolean, roll?: boolean, axesHelper?: boolean)
+    {
+        this.AxesHelperButtonOnClick(this.AxesHelperButton.nativeElement);
+        this.CreateTrackBallControls(true, false, true, false);
     }
     
     CreateScenes()
@@ -496,12 +511,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
     SetCamera()
     {
-        this.camera.position.x = -20;
-        this.camera.position.y = 40;
-        this.camera.position.z = -20;
-        // this.camera.position.x = this.reachCollection.Reaches[0].Crosses[this.reachCollection.Reaches[0].Crosses.length - 1].LeftCoast.x;
-        // this.camera.position.y = 0;
-        // this.camera.position.z = this.reachCollection.Reaches[0].Crosses[this.reachCollection.Reaches[0].Crosses.length - 1].LeftCoast.z;
+        this.ZoomAllButtonOnClick(this.ZoomAllButton.nativeElement);
     }
     
     CreateCameraHUD()
@@ -582,12 +592,14 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         ideApp.renderer.clear();
         ideApp.renderer.render(ideApp.scene, ideApp.camera);
         ideApp.renderer.clearDepth();
-        if(ideApp.showLabels)
+        if(ideApp.LabelButton.nativeElement.pressed)
             ideApp.renderer.render(ideApp.labelScene, ideApp.cameraHUD);
-        ideApp.renderer.clearDepth();
-        ideApp.renderer.render(ideApp.hudScene, new THREE.Camera());
+        if(ideApp.AxesHelperButton.nativeElement.pressed)
+        {
+            ideApp.renderer.clearDepth();
+            ideApp.renderer.render(ideApp.hudScene, new THREE.Camera());
+        }
     }
-
 }
 
 var ideApp: IdeComponent;
