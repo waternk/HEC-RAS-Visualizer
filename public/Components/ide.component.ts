@@ -395,16 +395,17 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
             top: this.BoundingSphereRadius,
             bottom: -this.BoundingSphereRadius,
         }
-
+        
         this.camera.left = _viewport.left;
         this.camera.right = _viewport.right;
         this.camera.top = _viewport.top;
         this.camera.bottom = _viewport.bottom;
 
-        this.camera.lookAt(new THREE.Vector3(this.BoundingSphereCenter.x, this.BoundingSphereCenter.y, this.BoundingSphereCenter.z));
-        this.controls.target.set(this.BoundingSphereCenter.x, this.BoundingSphereCenter.y, this.BoundingSphereCenter.z);
-        this.controls.target0.set(this.BoundingSphereCenter.x, this.BoundingSphereCenter.y, this.BoundingSphereCenter.z);
+        this.controls.target = _.cloneDeep<THREE.Vector3>(this.BoundingSphereCenter);
+        
         this.camera.zoom = 1;
+        this.camera.position.set(this.BoundingSphereCenter.x , this.BoundingSphereCenter.y + this.BoundingSphereRadius, this.BoundingSphereCenter.z);
+        this.camera.up.set(0, 0, 1);
         
         this.camera.updateProjectionMatrix();
 
@@ -526,11 +527,6 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
     CreateCamera()
     {         
-        // this.camera = new THREE.OrthographicCamera( this.divCanvas.clientWidth / - 2, 
-        //                                             this.divCanvas.clientWidth / 2 , 
-        //                                             this.divCanvas.clientHeight / 2, 
-        //                                             this.divCanvas.clientHeight / - 2, 
-        //                                             -1000000000, 1000000000);
         this.camera = new THREE.OrthographicCamera( -this.divCanvas.clientWidth, 
                                                     this.divCanvas.clientWidth, 
                                                     this.divCanvas.clientWidth * this.aspect, 

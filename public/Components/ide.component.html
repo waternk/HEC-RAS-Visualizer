@@ -106,7 +106,25 @@
                                     <input id="inputZ" style="width:50px" type="number" (ngModelChange)="ChangeView();" [(ngModel)]="crossScaleZ" />
                                 </div>
                             </div>
+                        </div>
+                        <h7>Camera Vector</h7>
+                        <div class="panel-body">
+                            <div class="form-group row">
+                                <div class="col-xs-4">
+                                    <label for="inputX" class="col-md-1 control-label">X: </label>
+                                    <input id="inputX"  style="width:50px" type="number" (ngModelChange)="ChangeView();" [(ngModel)]="camera.position.x" />
+                                </div>
+                                <div class="col-xs-4">
+                                    <label for="inputY" class="col-md-1 control-label">Y: </label>
+                                    <input id="inputY"  style="width:50px" type="number" (ngModelChange)="ChangeView();" [(ngModel)]="camera.position.y" />
+                                </div>
+                                <div class="col-xs-4">
+                                    <label for="inputZ" class="col-md-1 control-label">Z: </label>
+                                    <input id="inputZ" style="width:50px" type="number" (ngModelChange)="ChangeView();" [(ngModel)]="camera.position.z" />
+                                </div>
+                            </div>
                     </div>
+
                 </div>
             </div>
         </div>
