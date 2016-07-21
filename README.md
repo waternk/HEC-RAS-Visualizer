@@ -36,5 +36,5 @@ npm start</pre></li>
 <img src="screenshots/Screen Shot 2016-07-21 at 23.23.33.png" />
 <img src="screenshots/Screen Shot 2016-07-21 at 23.23.35.png" />
 <img src="screenshots/Screen Shot 2016-07-21 at 23.24.04.png" />
-<img src="screenshots/Screen Shot 2016-07-21 at 23.24.16.png" />
 <img src="screenshots/Screen Shot 2016-07-21 at 23.24.12.png" />
+<img src="screenshots/Screen Shot 2016-07-21 at 23.24.16.png" />
