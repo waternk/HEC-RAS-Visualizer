@@ -83,7 +83,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     IdeApp: IdeComponent;
     HECRASInputs: Array<String>;
     DisplayView: any;
-    ratio: number;
+    aspect: number;
     BoundingSphereRadius: number;
     BoundingSphereCenter: THREE.Vector3;
     selectedReach: Reach;
@@ -169,16 +169,15 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     {
         var w = window.innerWidth;
         var h = window.innerHeight;
-        var ratio = h/w;
-        this.ratio = ratio;
+        this.aspect = w / h;
         this.divCanvas = document.getElementById("canvas");
         var parent = document.getElementById("viewport");
         this.divCanvas.style.width = (parent.clientWidth - 350) + "px";
-        this.divCanvas.style.height = (parent.clientWidth - 350)* ratio + "px";
-        parent.style.cssFloat="left";
+        this.divCanvas.style.height = (parent.clientWidth - 350) / this.aspect + "px";
+        parent.style.cssFloat = "left";
         parent.style.width = this.divCanvas.style.width;
         parent.style.height = this.divCanvas.style.height;
-        this.divCanvas.addEventListener( 'mouseup', this.mouseup, false );
+        this.SetEventListeners();
         this.CreateRenderer(this.divCanvas);
         this.divCanvas.appendChild(this.renderer.domElement);
         this.reachCollection = new ReachCollection();
@@ -190,6 +189,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         this.CreateHUD(this.hudScene);
         this.SetLight();
         this.HECRASInputs = [];
+        
     }
 
     ngAfterViewChecked()
@@ -387,19 +387,43 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
     ZoomAllButtonOnClick(element: HTMLElement)
     {
-        var width = this.BoundingSphereRadius;
-        var height = width; 
-        this.camera.left = -width;
-        this.camera.right = width;
-        this.camera.top = height;
-        this.camera.bottom = -height;
-        
+        var _viewport = {
+            viewSize: this.BoundingSphereRadius,
+            aspectaspect: this.aspect,
+            left: -this.aspect * this.BoundingSphereRadius,
+            right: this.aspect * this.BoundingSphereRadius,
+            top: this.BoundingSphereRadius,
+            bottom: -this.BoundingSphereRadius,
+        }
+
+        this.camera.left = _viewport.left;
+        this.camera.right = _viewport.right;
+        this.camera.top = _viewport.top;
+        this.camera.bottom = _viewport.bottom;
+
         this.camera.lookAt(new THREE.Vector3(this.BoundingSphereCenter.x, this.BoundingSphereCenter.y, this.BoundingSphereCenter.z));
         this.controls.target.set(this.BoundingSphereCenter.x, this.BoundingSphereCenter.y, this.BoundingSphereCenter.z);
         this.controls.target0.set(this.BoundingSphereCenter.x, this.BoundingSphereCenter.y, this.BoundingSphereCenter.z);
         this.camera.zoom = 1;
         
         this.camera.updateProjectionMatrix();
+
+        // var sg = new THREE.SphereGeometry(this.BoundingSphereRadius);
+        // sg.applyMatrix(new THREE.Matrix4().makeTranslation(this.BoundingSphereCenter.x, this.BoundingSphereCenter.y, this.BoundingSphereCenter.z))
+        // var mesh = new THREE.Mesh(sg, new THREE.MeshBasicMaterial({color: 0x000000, wireframe: true}));
+        // this.scene.add(mesh);
+        
+    }
+    
+    SetEventListeners()
+    {
+        this.divCanvas.addEventListener( 'mouseup', this.mouseup, false );
+        //window.addEventListener( 'resize', this.OnWindowResize, false );
+    }
+    
+    OnWindowResize()
+    {
+        
     }
 
     ChangeView()
@@ -429,7 +453,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         else
             this.selectedReach.AddToSceneLikeLines(this.scene, this.labelScene, this.camera, this.cameraHUD, scaleVector3);
         
-        this.selectedReach.CreateLabelAsSprite(this.labelScene,this.camera, scaleVector3, this.ratio);
+        this.selectedReach.CreateLabelAsSprite(this.labelScene,this.camera, scaleVector3, this.aspect);
     
     }
 
@@ -502,10 +526,15 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
     CreateCamera()
     {         
-        this.camera = new THREE.OrthographicCamera( this.divCanvas.clientWidth / - 2, 
-                                                    this.divCanvas.clientWidth / 2, 
-                                                    this.divCanvas.clientHeight / 2, 
-                                                    this.divCanvas.clientHeight / - 2, 
+        // this.camera = new THREE.OrthographicCamera( this.divCanvas.clientWidth / - 2, 
+        //                                             this.divCanvas.clientWidth / 2 , 
+        //                                             this.divCanvas.clientHeight / 2, 
+        //                                             this.divCanvas.clientHeight / - 2, 
+        //                                             -1000000000, 1000000000);
+        this.camera = new THREE.OrthographicCamera( -this.divCanvas.clientWidth, 
+                                                    this.divCanvas.clientWidth, 
+                                                    this.divCanvas.clientWidth * this.aspect, 
+                                                    this.divCanvas.clientWidth * this.aspect, 
                                                     -1000000000, 1000000000);
     }
 
@@ -521,13 +550,13 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
     initReachCollection(inputs: Array<String>, callback: Function)
     {
-        this.reachCollection.Load(inputs, 1, this.ratio, () => 
+        this.reachCollection.Load(inputs, 1, this.aspect, () => 
         {
             var scaleVector3 = new THREE.Vector3(ideApp.crossScaleX, ideApp.crossScaleY, ideApp.crossScaleZ);
             this.reachCollection.Organize();
             for(var i = 0; i < this.reachCollection.Reaches.length; i++)
             {
-                this.reachCollection.Reaches[i].CreateLabelAsSprite(this.labelScene, this.camera, scaleVector3, this.ratio);
+                this.reachCollection.Reaches[i].CreateLabelAsSprite(this.labelScene, this.camera, scaleVector3, this.aspect);
             }
             callback();
         });
@@ -560,7 +589,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
         if(ideApp.selectedReach)
         {
-            ideApp.selectedReach.RefreshLabelPosition(ideApp.camera, ideApp.ratio, scaleVector3); 
+            ideApp.selectedReach.RefreshLabelPosition(ideApp.camera, ideApp.aspect, scaleVector3); 
         }
         else if(ideApp.prevCtrls == null || 
                 camOpts.zoom.toFixed(7) != ideApp.prevCam.toJSON().object.zoom.toFixed(7) || 
@@ -577,7 +606,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
             for (var i = 0; i < ideApp.reachCollection.Reaches.length; i++)
             {
                 var reach = ideApp.reachCollection.Reaches[i];
-                reach.RefreshLabelPosition(ideApp.camera, ideApp.ratio, scaleVector3);           
+                reach.RefreshLabelPosition(ideApp.camera, ideApp.aspect, scaleVector3);           
             }
         }
         

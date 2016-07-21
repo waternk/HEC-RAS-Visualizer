@@ -225,7 +225,7 @@ export class ReachCollection
                     var lineNum = 1;
                     cross.Position = Number(lines[lineNum++]);
                     var lcost = lines[lineNum++].split(" ");
-                    cross.LeftCoast = {x: Number(lcost[0]) * scale, z: Number(lcost[1]) * scale};
+                    cross.LeftCoast = {x: Number(lcost[0]) * scale , z: Number(lcost[1]) * scale };
                     var rcost = lines[lineNum++].split(" ");
                     cross.RightCoast = {x: Number(rcost[0]) * scale , z: Number(rcost[1]) * scale};
                     

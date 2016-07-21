@@ -54,8 +54,8 @@ export class Reach {
     {
         var canvas = document.createElement('canvas');
         var size = 1024;
-        canvas.width = size;
-        canvas.height = size * ratio;
+        canvas.width = size * ratio;
+        canvas.height = size;
         var context = canvas.getContext('2d');
         context.fillStyle = '#ff0000';
         context.textAlign = 'center';
