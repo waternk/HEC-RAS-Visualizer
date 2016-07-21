@@ -1,4 +1,4 @@
-import { Component, OnInit, Injectable, ViewChild, ElementRef, AfterViewChecked, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Injectable, ViewChild, ElementRef, AfterViewChecked, AfterViewInit, ViewEncapsulation } from '@angular/core';
 import { UploaderComponent } from './uploader.component';
 import { Reach } from '../Classes/Reach';
 import { Cross } from '../Classes/Cross';
@@ -17,8 +17,16 @@ import * as _ from 'lodash';
 
     #canvas{
         border:1px solid #eee;
+        width:100%;
         position: relative; top: -30px;
         z-index: 0;
+        background-color: white;
+        margin: 0;
+    }
+    #rightpanel{ 
+        /*float:right;
+        position: relative;
+        top: -6px;*/
         background-color: white;
     }
     #controls{
@@ -31,7 +39,8 @@ import * as _ from 'lodash';
         height: 24px;
     }
     #viewport{
-
+        width:99%;
+        margin: 0;
     }
 
     .noselect {
@@ -94,6 +103,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     divCanvas: HTMLElement;
     fileManager: FileManager;
     camera: THREE.OrthographicCamera;
+    AxesCamera: THREE.OrthographicCamera;
     cameraHUD: THREE.Camera;
     scene: THREE.Scene;
     labelScene: THREE.Scene;
@@ -168,15 +178,15 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     ngOnInit()
     {
         var w = window.innerWidth;
-        var h = window.innerHeight;
+        var h = window.innerHeight - 60;
         this.aspect = w / h;
         this.divCanvas = document.getElementById("canvas");
         var parent = document.getElementById("viewport");
-        this.divCanvas.style.width = (parent.clientWidth - 350) + "px";
-        this.divCanvas.style.height = (parent.clientWidth - 350) / this.aspect + "px";
-        parent.style.cssFloat = "left";
-        parent.style.width = this.divCanvas.style.width;
-        parent.style.height = this.divCanvas.style.height;
+        this.divCanvas.style.width = w + "px";
+        this.divCanvas.style.height = w / this.aspect + "px";
+        //parent.style.cssFloat = "left";
+        // parent.style.width = this.divCanvas.style.width;
+        // parent.style.height = this.divCanvas.style.height;
         this.SetEventListeners();
         this.CreateRenderer(this.divCanvas);
         this.divCanvas.appendChild(this.renderer.domElement);
@@ -532,6 +542,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
                                                     this.divCanvas.clientWidth * this.aspect, 
                                                     this.divCanvas.clientWidth * this.aspect, 
                                                     -1000000000, 1000000000);
+        this.AxesCamera = new THREE.OrthographicCamera(-1, 1, this.aspect, -this.aspect, -1, 1);
     }
 
     SetCamera()
@@ -622,7 +633,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         if(ideApp.AxesHelperButton.nativeElement.pressed)
         {
             ideApp.renderer.clearDepth();
-            ideApp.renderer.render(ideApp.hudScene, new THREE.Camera());
+            ideApp.renderer.render(ideApp.hudScene, ideApp.AxesCamera);
         }
     }
 }

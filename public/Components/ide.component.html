@@ -1,20 +1,20 @@
 <script>
-    $(document).ready(function(){
-        $('[data-toggle="tooltip"]').tooltip(); 
+    $(document).ready(function() {
+        $('[data-toggle="tooltip"]').tooltip();
     });
 </script>
-<div class="noselect" style="background-color:#eee;min-height:100%;min-width:100%;">
+<div class="noselect" style="background-color:#eee;">
     <div class="dropdown" style="margin-bottom:10px; width: 100%; background-color: #eee">
-    <button id="dLabel" type="button" style="outline: none;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button id="dLabel" type="button" style="outline: none;" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         FILE
         <span class="caret"></span>
     </button>
-    <ul class="dropdown-menu" aria-labelledby="dLabel">
-        <li style="cursor: pointer" data-toggle="modal" data-target="#myModal"><a><span>Open</span></a></li>
-    </ul>
+        <ul class="dropdown-menu" aria-labelledby="dLabel">
+            <li style="cursor: pointer" data-toggle="modal" data-uk-modal="{target:'#fileOpenModal', bgclose:false}"><a><span>Open</span></a></li>
+        </ul>
+        <div style="float: right"><button class="uk-button" data-uk-offcanvas="{target:'#rightsidebar'}"><i class="uk-icon-cog"></i></button></div>
     </div>
-    
-    <div id="viewport" >
+    <div id="viewport">
         <div id="controls">
             <div style="display:inline-block">
                 <button #ZoomAllButton id="zoomall" (click)="ZoomAllButtonOnClick($event.currentTarget)" type="button" class="btn btn-default btn-xs controlButton">
@@ -22,7 +22,7 @@
                 </button>
             </div>
             <div style="display:inline-block">
-                <button #ZoomInButton (click)="ZoomInButtonOnClick($event.currentTarget)" type="button"  class="btn btn-default btn-xs controlButton">
+                <button #ZoomInButton (click)="ZoomInButtonOnClick($event.currentTarget)" type="button" class="btn btn-default btn-xs controlButton">
                     <i class="glyphicon glyphicon-zoom-in"></i>
                 </button>
             </div>
@@ -32,7 +32,7 @@
                 </button>
             </div>
             <div style="display:inline-block">
-                <button #RotateButton (click)="RotateButtonOnClick($event.currentTarget)" type = "button" class="btn btn-default btn-xs controlButton">
+                <button #RotateButton (click)="RotateButtonOnClick($event.currentTarget)" type="button" class="btn btn-default btn-xs controlButton">
                     <i class="glyphicon glyphicon-repeat"></i>
                 </button>
             </div>
@@ -47,7 +47,7 @@
                 </button>
             </div>
             <div style="display:inline-block">
-                <button #AxesHelperButton (click)="AxesHelperButtonOnClick($event.currentTarget)" type = "button" class="btn btn-default btn-xs controlButton">
+                <button #AxesHelperButton (click)="AxesHelperButtonOnClick($event.currentTarget)" type="button" class="btn btn-default btn-xs controlButton">
                     <i class="uk-icon-compass"></i>
                 </button>
             </div>
@@ -57,93 +57,106 @@
                 </button>
             </div>
             <div style="display:inline-block">
-                <button #LinesButton (click)="LinesButtonOnClick($event.currentTarget)" type = "button" class="btn btn-default btn-xs controlButton">
+                <button #LinesButton (click)="LinesButtonOnClick($event.currentTarget)" type="button" class="btn btn-default btn-xs controlButton">
                     <i class="uk-icon-area-chart"></i>
                 </button>
             </div>
         </div>
         <div id="canvas"></div>
     </div>
-    <div style="width:310px; float:right;">
-        <div class="col-xs-11 panel panel-default">
-            <h2>Options</h2>
-            <h6 role="button" class="panel-heading" data-toggle="collapse" href="#collapse1"><span><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> List of reaches</span></h6>
-            <div id="collapse1" class="panel-collapse collapse">
-                <div class="panel-body">
-                    <table class="table-sm table-striped table-responsive table-hover">
-                    <thead>
-                        <tr>
-                            <th style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis">Reach name</th>
-                            <th>Color</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr  data-toggle="tooltip" title="{{ reach.Name }}" role="button" (click)="ResetCameraAndControls();DisplayReach(reach);"  *ngFor="let reach of reachCollection.Reaches">
-                            <td>{{ reach.Name }}</td>
-                            <td [style.backgroundColor] = "reach.Color"></td>
-                        </tr>
-                    </tbody>
-                    </table>
-                </div>
-            </div>
-            <h6 role="button" class="panel-heading" data-toggle="collapse" href="#collapse2"><span><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Other</span></h6>
-            <div id="collapse2" class="panel-collapse collapse">
-                <div class="panel-body">
-                    <div class="panel panel-default">
-                        <h7>Scale Vector</h7>
-                        <div class="panel-body">
-                            <div class="form-group row">
-                                <div class="col-xs-4">
-                                    <label for="inputX" class="col-md-1 control-label">X: </label>
-                                    <input id="inputX"  style="width:50px" type="number" (ngModelChange)="ChangeView();" [(ngModel)]="crossScaleX" />
-                                </div>
-                                <div class="col-xs-4">
-                                    <label for="inputY" class="col-md-1 control-label">Y: </label>
-                                    <input id="inputY"  style="width:50px" type="number" (ngModelChange)="ChangeView();" [(ngModel)]="crossScaleY" />
-                                </div>
-                                <div class="col-xs-4">
-                                    <label for="inputZ" class="col-md-1 control-label">Z: </label>
-                                    <input id="inputZ" style="width:50px" type="number" (ngModelChange)="ChangeView();" [(ngModel)]="crossScaleZ" />
+    <div id="rightpanel">
+        <div id="rightsidebar" class="uk-offcanvas">
+            <div style="background-color:white;" class="uk-offcanvas-bar uk-offcanvas-bar-flip">
+                <ul class="uk-tab" data-uk-tab data-uk-switcher="{connect:'#subnav-pill-content-1'}">
+                    <li class="uk-active" class="uk-active" aria-expanded="true"><a class="uk-text-primary">Scene</a></li>
+                    <li aria-expanded="false" class=""><a class="uk-text-primary">Settings</a></li>
+                </ul>
+                <ul id="subnav-pill-content-1" class="uk-switcher">
+                    <li class="uk-active" aria-hidden="false">
+                        <div style="padding-left:10px;">
+                            <div class="uk-panel">
+                                <form class="uk-form">
+                                    <legend class="uk-title">Camera</legend>
+                                    <div class="uk-width-1-1 uk-grid uk-margin-remove">
+                                        <div class="uk-width-2-5 uk-text-left uk-text-middle">X:</div>
+                                        <input class="uk-width-3-5 uk-text-middle" type="number" [(ngModel)]="camera.position.x" placeholder="" />
+                                    </div>
+                                    <div class="uk-width-1-1 uk-grid uk-margin-remove">
+                                        <div class="uk-width-2-5 uk-text-left uk-text-middle">Y:</div>
+                                        <input class="uk-width-3-5 uk-text-middle" type="number" [(ngModel)]="camera.position.y" placeholder="" />
+                                    </div>
+                                    <div class="uk-width-1-1 uk-grid uk-margin-remove">
+                                        <div class="uk-width-2-5 uk-text-left uk-text-middle">Z:</div>
+                                        <input class="uk-width-3-5 uk-text-middle" type="number" [(ngModel)]="camera.position.z" placeholder="" />
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="uk-panel">
+                                <form class="uk-form">
+                                    <legend class="uk-title">Scale</legend>
+                                    <div class="uk-width-1-1 uk-grid uk-margin-remove">
+                                        <div class="uk-text-middle uk-text-left uk-width-2-5">Depth: </div>
+                                        <input class="uk-width-3-5 uk-text-middle" type="number" (ngModelChange)="ChangeView();" [(ngModel)]="crossScaleY" />
+                                    </div>
+                                </form>
+                            </div>
+                            <div>
+                                <div class="uk-panel">
+                                    <legend class="uk-title">Objects</legend>
+                                    <div>
+                                        <table class="uk-table uk-table-hover uk-table-striped uk-table-condensed">
+                                            <thead>
+                                                <tr>
+                                                    <th style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis">Reach name</th>
+                                                    <th>Color</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr data-toggle="tooltip" title="{{ reach.Name }}" role="button" (click)="ResetCameraAndControls();DisplayReach(reach);" *ngFor="let reach of reachCollection.Reaches">
+                                                    <td>{{ reach.Name }}</td>
+                                                    <td [style.backgroundColor]="reach.Color"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <h7>Camera Vector</h7>
-                        <div class="panel-body">
-                            <div class="form-group row">
-                                <div class="col-xs-4">
-                                    <label for="inputX" class="col-md-1 control-label">X: </label>
-                                    <input id="inputX"  style="width:50px" type="number" (ngModelChange)="ChangeView();" [(ngModel)]="camera.position.x" />
-                                </div>
-                                <div class="col-xs-4">
-                                    <label for="inputY" class="col-md-1 control-label">Y: </label>
-                                    <input id="inputY"  style="width:50px" type="number" (ngModelChange)="ChangeView();" [(ngModel)]="camera.position.y" />
-                                </div>
-                                <div class="col-xs-4">
-                                    <label for="inputZ" class="col-md-1 control-label">Z: </label>
-                                    <input id="inputZ" style="width:50px" type="number" (ngModelChange)="ChangeView();" [(ngModel)]="camera.position.z" />
-                                </div>
-                            </div>
-                    </div>
-
-                </div>
+                    </li>
+                    <li aria-hidden="true" class="">
+                        <div>
+                        </div>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
-</div>
-<div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Open Files..</h4>
-      </div>
-      <div class="modal-body">
-       <uploader [IdeApp]="IdeApp"></uploader>
-      </div>
-      <div class="modal-footer">
-          <button type="button" class="btn btn-xs btn-default " (click)="CloseModal();" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-xs btn-primary" (click)="CloseModal();Init();" data-dismiss="modal">Save</button>
-      </div>
+    <!--<div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Open Files..</h4>
+                </div>
+                <div class="modal-body">
+                    <uploader [IdeApp]="IdeApp"></uploader>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-xs btn-default " (click)="CloseModal();" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-xs btn-primary" (click)="CloseModal();Init();" data-dismiss="modal">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>-->
+    
+    <div id="fileOpenModal" class="uk-modal">
+        <div class="uk-modal-dialog">
+            <button class="uk-modal-close uk-close"></button>
+            <div class="uk-modal-header">Open Files...</div>
+            <uploader [IdeApp]="IdeApp"></uploader>
+            <div class="uk-modal-footer">
+                <button type="button" class="btn btn-xs btn-default uk-button uk-modal-close" (click)="CloseModal();" data-dismiss="modal">Close</button>
+                <button type="button" class="uk-button uk-button-primary uk-modal-close" (click)="CloseModal();Init();" data-dismiss="modal">Save</button>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
