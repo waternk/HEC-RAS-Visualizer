@@ -7,15 +7,26 @@ export class Reach {
     private _name: string;
     private _crosses: Array<Cross>;
     private _color: string;
-    private _label: THREE.Sprite;
+    private _visible: boolean;
+    private _label: THREE.Mesh;
     private _basicMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
     
-    public get Label() : THREE.Sprite 
+    public get Visible() : boolean 
+    {
+        return this._visible;
+    }
+    
+    public set Visible(v : boolean) 
+    {
+        this._visible = v;
+    }
+    
+    public get Label() : THREE.Mesh 
     {
         return this._label;
     }
     
-    public set Label(v : THREE.Sprite) 
+    public set Label(v : THREE.Mesh) 
     {
         this._label = v;
     }
@@ -50,60 +61,53 @@ export class Reach {
         this._crosses = carr;
     }
 
-    public CreateLabelAsSprite(scene: THREE.Scene, camera: THREE.Camera, scaleVector: THREE.Vector3, ratio: number)
+    CreateLabelAsTextGeometry(font: THREE.Font)
     {
-        var canvas = document.createElement('canvas');
-        var size = 1024;
-        canvas.width = size * ratio;
-        canvas.height = size;
-        var context = canvas.getContext('2d');
-        context.fillStyle = '#ff0000';
-        context.textAlign = 'center';
-        context.font = '50px Helvetica Neue';
-        context.fillText(this.Name, size / 2, size / 2);
-        var amap = new THREE.Texture(canvas);
-        amap.needsUpdate = true;
+        var geometry = new THREE.TextGeometry( this._name, {
 
-        var mat = new THREE.SpriteMaterial({
-            map: amap,
-            transparent: true,
-            color: 0xffffff
+            font: font,
+            size: 0.05,
+            height: 0.0125,
+            curveSegments: 2,
+            bevelEnabled: false,
+            bevelThickness: 10,
+            bevelSize: 8
         });
-        var sp = new THREE.Sprite(mat);
-        this._label = sp;
         
-        sp.position.set(this.Crosses[Math.floor(
-            this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].x * scaleVector.x,
-            this.Crosses[Math.floor(this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].y  * scaleVector.y,
-            this.Crosses[Math.floor(this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].z  * scaleVector.z
-            );
-        scene.add(sp);
-        sp.updateMatrixWorld(true);
+        var textMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: false } );
+        var mesh = new THREE.Mesh(geometry, textMaterial);
         
-        // var vector = new THREE.Vector3();
-        // vector.setFromMatrixPosition(sp.matrixWorld);
-        // vector.project(camera);
-        //sp.position.set(vector.x, vector.y + (0.2 * 1/ratio), vector.z);
+        mesh.position.set
+        (
+            this.Crosses[Math.floor(
+            this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].x,
+            this.Crosses[Math.floor(this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].y,
+            this.Crosses[Math.floor(this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].z
+        );
+        this._label = mesh;     
     }
 
     public AddLabelToScene(scene: THREE.Scene)
     {
-        scene.add(this.Label);
+        if(this.Label)
+            scene.add(this.Label);
     }
 
     public RefreshLabelPosition(camera: THREE.Camera, ratio: number, scaleVector: THREE.Vector3)
     {
+        if(!this.Label)
+            return;
         this.Label.position.set(this.Crosses[Math.floor(
             this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].x * scaleVector.x,
             this.Crosses[Math.floor(this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].y  * scaleVector.y,
             this.Crosses[Math.floor(this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].z  * scaleVector.z
-            );
+        );
         this.Label.updateMatrixWorld(true);
         
         var vector = new THREE.Vector3();
         vector.setFromMatrixPosition(this.Label.matrixWorld);
         vector.project(camera);
-        this.Label.position.set(vector.x, vector.y + (0.2 * 1/ratio), vector.z);
+        this.Label.position.set(vector.x, vector.y, vector.z);
     }
 
     public ShowLabelAsHTML(scene: THREE.Scene, camera: THREE.Camera, canvas: HTMLElement, container: any, scaleVector: THREE.Vector3)
@@ -134,7 +138,7 @@ export class Reach {
             elem.style.top = (canvas.clientHeight - vector.y) + 'px';    
     }
 
-    public AddToSceneLikeMesh(scene: THREE.Scene, labelScene: THREE.Scene, camera: THREE.Camera, cameraHUD: THREE.Camera, scaleVector?: THREE.Vector3)
+    public AddToSceneLikeMesh(scene: THREE.Scene, camera: THREE.Camera, cameraHUD: THREE.Camera, scaleVector?: THREE.Vector3)
     {
         var parts = new Array<RiverPart>();
         for (var i = 0; i < this.Crosses.length - 1; i++)
@@ -145,8 +149,28 @@ export class Reach {
         }
         scene.add(this.CreateMesh(parts, scaleVector));
     }
+    
+    public CreateMesh(parts: Array<RiverPart>, scaleVector?: THREE.Vector3) : THREE.Mesh
+    {
+        var geo = new THREE.Geometry();
+        for (var index = 0; index < parts.length; index++) 
+        {
+            var part = parts[index];
+            geo.mergeMesh(new THREE.Mesh(part));
+        }
 
-    public AddToSceneLikeLines(scene: THREE.Scene, labelScene: THREE.Scene, camera: THREE.Camera, cameraHUD: THREE.Camera, scaleVector?: THREE.Vector3)
+        var basicMaterial = new THREE.MeshLambertMaterial({ color: this._color, side: THREE.DoubleSide,  wireframe: false});
+        geo.computeFaceNormals();
+        geo.computeVertexNormals();
+        
+        var mesh = new THREE.Mesh(geo, basicMaterial);
+        if(scaleVector)
+            mesh.scale.set(scaleVector.x, scaleVector.y, scaleVector.z);
+
+        return mesh;
+    }
+
+    public AddToSceneLikeLines(scene: THREE.Scene, camera: THREE.Camera, cameraHUD: THREE.Camera, scaleVector?: THREE.Vector3)
     {
         var crosses = new Array<Cross>();
         var indices = new Array<number>();
@@ -190,26 +214,6 @@ export class Reach {
         scene.add(line);        
     }
 
-    public CreateMesh(parts: Array<RiverPart>, scaleVector?: THREE.Vector3) : THREE.Mesh
-    {
-        var geo = new THREE.Geometry();
-        for (var index = 0; index < parts.length; index++) 
-        {
-            var part = parts[index];
-            geo.mergeMesh(new THREE.Mesh(part));
-        }
-
-        var basicMaterial = new THREE.MeshLambertMaterial({ color: this._color, side: THREE.DoubleSide,  wireframe: false});
-        geo.computeFaceNormals();
-        geo.computeVertexNormals();
-        
-        var mesh = new THREE.Mesh(geo, basicMaterial);
-        if(scaleVector)
-            mesh.scale.set(scaleVector.x, scaleVector.y, scaleVector.z);
-
-        return mesh;
-    }
-
     public ResetToOrigin()
     {
         var index = Math.floor(this.Crosses.length / 2);
@@ -227,9 +231,10 @@ export class Reach {
         }
     }
     
-    constructor() 
+    constructor(visible?: boolean) 
     {
         this._crosses = new Array<Cross>();
+        this._visible = visible? true : false;
     }
 
     public Copy() : Reach

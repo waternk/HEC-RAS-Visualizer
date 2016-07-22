@@ -184,9 +184,6 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         var parent = document.getElementById("viewport");
         this.divCanvas.style.width = w + "px";
         this.divCanvas.style.height = w / this.aspect + "px";
-        //parent.style.cssFloat = "left";
-        // parent.style.width = this.divCanvas.style.width;
-        // parent.style.height = this.divCanvas.style.height;
         this.SetEventListeners();
         this.CreateRenderer(this.divCanvas);
         this.divCanvas.appendChild(this.renderer.domElement);
@@ -195,6 +192,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         this.CreatePlane();
         this.CreateLight();
         this.CreateCamera();
+        this.CreateAxesCamera();
         this.CreateCameraHUD();
         this.CreateHUD(this.hudScene);
         this.SetLight();
@@ -221,7 +219,6 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
     buildAxes(length) 
     {
-        
         var axes = new THREE.Object3D();
         axes.add(this.buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( length, 0, 0 ), 0xFF0000, false )); // +X
         axes.add(this.buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, length, 0 ), 0x00FF00, false )); // +Y
@@ -439,33 +436,43 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
     ChangeView()
     {
-        if(ideApp.selectedReach)
-        {
-            ideApp.DisplayReach(ideApp.selectedReach);
-        }
-        else
-        {
+        // if(ideApp.selectedReach)
+        // {
+        //     ideApp.DisplayReach(ideApp.selectedReach);
+        // }
+        // else
+        // {
             ideApp.DisplayAllReaches();
-        }
+        // }
     }
 
-    DisplayReach(reach: Reach)
-    {
-        this.ClearScene(this.scene);
-        this.ClearScene(this.labelScene);
-        this.SetLight();
-        this.selectedReach = reach.Copy();
+    // DisplayReach(reach: Reach)
+    // {
+    //     this.ClearScene(this.scene);
+    //     this.ClearScene(this.labelScene);
+    //     this.SetLight();
+    //     this.selectedReach = reach.Copy();
 
-        var scaleVector3 = new THREE.Vector3(this.crossScaleX, this.crossScaleY, this.crossScaleZ);
-        this.selectedReach.ResetToOrigin();
+    //     var scaleVector3 = new THREE.Vector3(this.crossScaleX, this.crossScaleY, this.crossScaleZ);
+    //     this.selectedReach.ResetToOrigin();
 
-        if(this.DisplayView.view == 'mesh')
-            this.selectedReach.AddToSceneLikeMesh(this.scene, this.labelScene, this.camera, this.cameraHUD, scaleVector3);
-        else
-            this.selectedReach.AddToSceneLikeLines(this.scene, this.labelScene, this.camera, this.cameraHUD, scaleVector3);
+    //     if(this.DisplayView.view == 'mesh')
+    //         this.selectedReach.AddToSceneLikeMesh(this.scene, this.labelScene, this.camera, this.cameraHUD, scaleVector3);
+    //     else
+    //         this.selectedReach.AddToSceneLikeLines(this.scene, this.labelScene, this.camera, this.cameraHUD, scaleVector3);
         
-        this.selectedReach.CreateLabelAsSprite(this.labelScene,this.camera, scaleVector3, this.aspect);
-    
+    //     //this.selectedReach.CreateLabelAsSprite(this.labelScene,this.camera, scaleVector3, this.aspect);
+    //     var loader = new THREE.FontLoader();
+    //     loader.load( '/three.js-master/examples/fonts/gentilis_bold.typeface.json', (font) => 
+    //     {
+    //         this.selectedReach.CreateLabelAsTextGeometry(this.labelScene, font);
+    //     });
+    // }
+
+    UpdateList(newValue:boolean, model: Reach)
+    {
+        model.Visible = newValue;
+        this.DisplayAllReaches();
     }
 
     DisplayAllReaches()
@@ -477,16 +484,17 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         var scaleVector3 = new THREE.Vector3(this.crossScaleX, this.crossScaleY, this.crossScaleZ);
 
         if(this.DisplayView.view == 'mesh')
-            this.reachCollection.AddReachesLikeMeshToScene(this.scene, this.labelScene, this.camera,  this.cameraHUD, this.divCanvas, scaleVector3);
+            this.reachCollection.AddReachesLikeMeshToScene(this.scene, this.camera,  this.cameraHUD, this.divCanvas, scaleVector3);
         else
-            this.reachCollection.AddReachesLikeLinesToScene(this.scene, this.labelScene, this.camera, this.cameraHUD, this.divCanvas, scaleVector3);    
+            this.reachCollection.AddReachesLikeLinesToScene(this.scene, this.camera, this.cameraHUD, this.divCanvas, scaleVector3);    
         
         for (var i = 0; i < this.reachCollection.Reaches.length; i++)
         {
             var reach: Reach = this.reachCollection.Reaches[i];
-            reach.AddLabelToScene(this.labelScene);
+            if(reach.Visible)
+                reach.AddLabelToScene(this.labelScene);
         }
-        
+        //this.reachCollection.AddLabelsToScene(this.labelScene); //bug
         this.SetLight();
     }
 
@@ -542,7 +550,11 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
                                                     this.divCanvas.clientWidth * this.aspect, 
                                                     this.divCanvas.clientWidth * this.aspect, 
                                                     -1000000000, 1000000000);
-        this.AxesCamera = new THREE.OrthographicCamera(-1, 1, this.aspect, -this.aspect, -1, 1);
+    }
+    
+    CreateAxesCamera()
+    {
+        this.AxesCamera = new THREE.OrthographicCamera(-this.aspect, this.aspect, 1, -1, -1, 1);
     }
 
     SetCamera()
@@ -552,7 +564,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     
     CreateCameraHUD()
     {
-        this.cameraHUD = new THREE.OrthographicCamera(-1, 1, 1, -1, -1, 1);
+        this.cameraHUD = new THREE.OrthographicCamera(-this.aspect, this.aspect, 1, -1, -1, 1);
     }
 
     initReachCollection(inputs: Array<String>, callback: Function)
@@ -560,12 +572,18 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         this.reachCollection.Load(inputs, 1, this.aspect, () => 
         {
             var scaleVector3 = new THREE.Vector3(ideApp.crossScaleX, ideApp.crossScaleY, ideApp.crossScaleZ);
+            var loader = new THREE.FontLoader();
             this.reachCollection.Organize();
-            for(var i = 0; i < this.reachCollection.Reaches.length; i++)
+            loader.load( '/three.js-master/examples/fonts/helvetiker_regular.typeface.json', (font) => 
             {
-                this.reachCollection.Reaches[i].CreateLabelAsSprite(this.labelScene, this.camera, scaleVector3, this.aspect);
-            }
-            callback();
+                for(var i = 0; i < this.reachCollection.Reaches.length; i++)
+                {
+                    this.reachCollection.Reaches[i].CreateLabelAsTextGeometry(font);
+                }
+                this.reachCollection.AddLabelsToScene(this.labelScene);
+                
+                callback();
+            });
         });
     }
 

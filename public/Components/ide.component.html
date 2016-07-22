@@ -73,7 +73,7 @@
                 </ul>
                 <ul id="subnav-pill-content-1" class="uk-switcher">
                     <li class="uk-active" aria-hidden="false">
-                        <div style="padding-left:10px;">
+                        <div style="padding-left:5px;">
                             <div class="uk-panel">
                                 <form class="uk-form">
                                     <legend class="uk-title">Camera</legend>
@@ -107,12 +107,15 @@
                                         <table class="uk-table uk-table-hover uk-table-striped uk-table-condensed">
                                             <thead>
                                                 <tr>
+                                                    <th>Visible</th>
                                                     <th style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis">Reach name</th>
                                                     <th>Color</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr data-toggle="tooltip" title="{{ reach.Name }}" role="button" (click)="ResetCameraAndControls();DisplayReach(reach);" *ngFor="let reach of reachCollection.Reaches">
+                                                
+                                                <tr data-toggle="tooltip" title="{{ reach.Name }}" role="button" *ngFor="let reach of reachCollection.Reaches">
+                                                    <td><input type="checkbox" (ngModelChange)="UpdateList($event, reach)" [ngModel]="reach.Visible" [(checked)]="reach.Visible" /></td>
                                                     <td>{{ reach.Name }}</td>
                                                     <td [style.backgroundColor]="reach.Color"></td>
                                                 </tr>
@@ -130,25 +133,7 @@
                 </ul>
             </div>
         </div>
-    </div>
-    <!--<div class="modal fade " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">Open Files..</h4>
-                </div>
-                <div class="modal-body">
-                    <uploader [IdeApp]="IdeApp"></uploader>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-xs btn-default " (click)="CloseModal();" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-xs btn-primary" (click)="CloseModal();Init();" data-dismiss="modal">Save</button>
-                </div>
-            </div>
-        </div>
-    </div>-->
-    
+    </div>    
     <div id="fileOpenModal" class="uk-modal">
         <div class="uk-modal-dialog">
             <button class="uk-modal-close uk-close"></button>

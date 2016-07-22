@@ -6,7 +6,7 @@ import { FileManager } from './FileManager';
 export class ReachCollection 
 {
     private _reaches: Array<Reach>;
-   
+    private _labelMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });  
     public get Reaches() : Array<Reach>
     {
         return this._reaches;
@@ -66,7 +66,6 @@ export class ReachCollection
                 mRotate = new THREE.Matrix4().makeRotationFromQuaternion(quaternion);
                 mt.makeTranslation(-cross.vertices[0].x, -cross.vertices[0].y, -cross.vertices[0].z)
                 mtBack.makeTranslation(newLeftX, 0, newLeftZ);
-                //mtBack.makeTranslation(cross.LeftCoast.x, 0, cross.LeftCoast.z);
                 
                 for (var j = 0; j < cross.vertices.length; j++) 
                 {
@@ -102,16 +101,32 @@ export class ReachCollection
     {
         this._reaches = [];
     }
+
+    public AddLabelsToScene(scene: THREE.Scene)
+    {
+        var geo = new THREE.Geometry();
+        for (var r = 0; r < this.Reaches.length; r++) 
+        {
+            var reach = this.Reaches[r];
+            if(reach.Visible)
+                geo.mergeMesh(reach.Label);
+            
+        }
+        var mesh = new THREE.Mesh(geo, this._labelMaterial);
+        scene.add(mesh);
+    }
     
-    public AddReachesLikeMeshToScene(scene: THREE.Scene, labelScene: THREE.Scene, camera: THREE.Camera, cameraHUD: THREE.Camera, canvas: HTMLElement, scaleVector?: THREE.Vector3)
+    public AddReachesLikeMeshToScene(scene: THREE.Scene, camera: THREE.Camera, cameraHUD: THREE.Camera, canvas: HTMLElement, scaleVector?: THREE.Vector3)
     {
         for(var r = 0; r < this.Reaches.length; r++)
         {
-            this.Reaches[r].AddToSceneLikeMesh(scene, labelScene, camera, cameraHUD, scaleVector)
+            var reach = this.Reaches[r];
+            if(reach.Visible)
+                reach.AddToSceneLikeMesh(scene, camera, cameraHUD, scaleVector)
         }
     }
     
-    public AddReachesLikeLinesToScene(scene: THREE.Scene, labelScene: THREE.Scene, camera: THREE.Camera, cameraHUD: THREE.Camera, canvas: HTMLElement, scaleVector?: THREE.Vector3)
+    public AddReachesLikeLinesToScene(scene: THREE.Scene, camera: THREE.Camera, cameraHUD: THREE.Camera, canvas: HTMLElement, scaleVector?: THREE.Vector3)
     {
         var indices = new Array<number>();
         var positions;
@@ -122,12 +137,12 @@ export class ReachCollection
         for(var r = 0; r < this.Reaches.length; r++)
         {
             var reach = this.Reaches[r];
-            
-            for (var i = 0; i < reach.Crosses.length; i++)
-            {
-                var cross = reach.Crosses[i];
-                numOfAllVertices += cross.vertices.length;
-            }
+            if(reach.Visible)
+                for (var i = 0; i < reach.Crosses.length; i++)
+                {
+                    var cross = reach.Crosses[i];
+                    numOfAllVertices += cross.vertices.length;
+                }
         }
         
         positions = new Float32Array(numOfAllVertices * 3);
@@ -135,7 +150,8 @@ export class ReachCollection
         for(var r = 0; r < this.Reaches.length; r++)
         {
             var reach = this.Reaches[r];
-            
+            if(!reach.Visible)
+                continue;
             for (var i = 0; i < reach.Crosses.length; i++) 
             {
                 var cross = reach.Crosses[i];
@@ -212,11 +228,12 @@ export class ReachCollection
             var reaches = input.split('reach');
             for (var r = 1; r < reaches.length; r++) 
             {
-                var reach = new Reach();
+                var reach = new Reach(true);
                 
                 var crossesInputs = reaches[r].split('presek');
+                
                 reach.Name = crossesInputs[0];
-                 
+                reach.Name = reach.Name.replace(/\r?\n|\r/g, '');
                 for (var i = 1; i < crossesInputs.length; i++)
                 {
                     var cross = new Cross();
@@ -244,6 +261,7 @@ export class ReachCollection
                     reach.Crosses.push(cross);  
                 }
                 reach.Color = this.GetRandomColor();
+                reach.Visible = true;
                 this.PushReach(reach);
             }    
         }
@@ -253,57 +271,4 @@ export class ReachCollection
             callback();
         }
     }
-
-    LoadCrossesFromFile(url, scale: number, ratio:number, callback: Function)
-    {
-        var fileManager = new FileManager();
-        
-        fileManager.FileOpen(url, this, (text) => {
-            
-            var reaches = text.split('reach');
-            for (var r = 1; r < reaches.length; r++) 
-            {
-                var reach = new Reach();
-                
-                var crossesInputs = reaches[r].split('presek');
-                reach.Name = crossesInputs[0];
-                 
-                for (var i = 1; i < crossesInputs.length; i++)
-                {
-                    var cross = new Cross();
-                    var crossInput = crossesInputs[i];
-                    var lines = crossInput.split('\n');    
-                    var lineNum = 1;
-                    cross.Position = Number(lines[lineNum++]);
-                    var lcost = lines[lineNum++].split(" ");
-                    cross.LeftCoast = {x: (lcost[0] as number) * scale, z: (lcost[1] as number) * scale};
-                    var rcost = lines[lineNum++].split(" ");
-                    cross.RightCoast = {x: (rcost[0] as number) * scale , z: (rcost[1] as number) * scale};
-                    
-                    var arr = [];
-
-                    for(var line = lineNum; line < lines.length-1; line++)
-                    {
-                        var lineAfterSplit = lines[line].split(" ");
-                        var x : number = Number(lineAfterSplit[0]);
-                        var y : number = Number(lineAfterSplit[1]);
-
-                        arr.push(new THREE.Vector3((x as number) * scale, (y as number) * scale));
-
-                    }
-                    cross.setVerticesByArray(new THREE.SplineCurve3(arr).getPoints(100));
-                    reach.Crosses.push(cross);  
-                }
-                reach.Color = this.GetRandomColor();
-                this.PushReach(reach);
-            } 
-            
-            if(callback)
-            {
-                callback();
-            } 
-            
-        });
-    }
-    
 }
