@@ -14,7 +14,7 @@
     "node": "registry:dt/node#6.0.0+20160621231320",
     "serve-favicon": "registry:dt/serve-favicon#0.0.0+20160316155526",
     "serve-static": "registry:dt/serve-static#0.0.0+20160606155157",
-    "three": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/threejs/three.d.ts",
+    "three": "https://raw.githubusercontent.com/filiptubic/DefinitelyTyped/9da8650a80821b6ba12d76e5ac7da1037b8f5300/threejs/three.d.ts",
     "three-detector": "github:DefinitelyTyped/DefinitelyTyped/threejs/three-effectcomposer.d.ts#48f20e97bfaf70fc1a9537b38aed98e9749be0ae",
     "three-effectscomposer": "github:DefinitelyTyped/DefinitelyTyped/threejs/detector.d.ts#48f20e97bfaf70fc1a9537b38aed98e9749be0ae",
     "three-orbitcontrol": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/threejs/three-orbitcontrols.d.ts",
