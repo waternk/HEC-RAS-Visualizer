@@ -252,7 +252,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         this.CreateControls(true, false, true, false);
         this.LinesButtonOnClick(this.LinesButton.nativeElement);
         this.MoveButtonOnClick(this.MoveButton.nativeElement);
-        this.RotateButtonOnClick(this.RotateButton.nativeElement);
+        // this.RotateButtonOnClick(this.RotateButton.nativeElement);
     }
 
     ToggleButton(element: HTMLElement) : boolean
@@ -303,14 +303,19 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         ideApp.ChangeView();
     }
 
+    MoveButtonOnClick(element: HTMLElement)
+    {
+        ideApp.ToggleButtonGroup(element, [ideApp.RotateButton]);
+        ideApp.controls.noPan = false;
+        ideApp.controls.noRotate = true;
+        ideApp.controls.update();        
+    }
+
     RotateButtonOnClick(element: HTMLElement)
     {
-        var pressed: boolean = ideApp.ToggleButton(element);
-
-        if(pressed)
-            ideApp.controls.noRotate = false;
-        else
-            ideApp.controls.noRotate = true;
+        ideApp.ToggleButtonGroup(element, [ideApp.MoveButton]);
+        ideApp.controls.noPan = true;
+        ideApp.controls.noRotate = false;
         ideApp.controls.update();
     }
 
@@ -331,17 +336,6 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     LabelButtonOnClick(element: HTMLElement)
     {
         ideApp.LabelButton.nativeElement.pressed = ideApp.ToggleButton(element);
-    }
-
-    MoveButtonOnClick(element: HTMLElement)
-    {
-        var pressed: boolean = ideApp.ToggleButton(element);
-
-        if(pressed)
-            ideApp.controls.noPan = false;
-        else
-            this.controls.noPan = true;
-        ideApp.controls.update();
     }
 
     CalculateBoundingSphere()
@@ -436,38 +430,8 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
     ChangeView()
     {
-        // if(ideApp.selectedReach)
-        // {
-        //     ideApp.DisplayReach(ideApp.selectedReach);
-        // }
-        // else
-        // {
-            ideApp.DisplayAllReaches();
-        // }
+        ideApp.DisplayAllReaches();
     }
-
-    // DisplayReach(reach: Reach)
-    // {
-    //     this.ClearScene(this.scene);
-    //     this.ClearScene(this.labelScene);
-    //     this.SetLight();
-    //     this.selectedReach = reach.Copy();
-
-    //     var scaleVector3 = new THREE.Vector3(this.crossScaleX, this.crossScaleY, this.crossScaleZ);
-    //     this.selectedReach.ResetToOrigin();
-
-    //     if(this.DisplayView.view == 'mesh')
-    //         this.selectedReach.AddToSceneLikeMesh(this.scene, this.labelScene, this.camera, this.cameraHUD, scaleVector3);
-    //     else
-    //         this.selectedReach.AddToSceneLikeLines(this.scene, this.labelScene, this.camera, this.cameraHUD, scaleVector3);
-        
-    //     //this.selectedReach.CreateLabelAsSprite(this.labelScene,this.camera, scaleVector3, this.aspect);
-    //     var loader = new THREE.FontLoader();
-    //     loader.load( '/three.js-master/examples/fonts/gentilis_bold.typeface.json', (font) => 
-    //     {
-    //         this.selectedReach.CreateLabelAsTextGeometry(this.labelScene, font);
-    //     });
-    // }
 
     UpdateList(newValue:boolean, model: Reach)
     {
@@ -522,6 +486,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
     CreateTrackBallControls(rotate?: boolean, zoom?: boolean, pan?: boolean, roll?: boolean)
     {
+        
         this.controls = new THREE.OrthographicTrackballControls(this.camera, this.divCanvas);
         this.controls.addEventListener('change', this.Render);
         this.controls.noRotate = (rotate == false || undefined ) ? true : false;
@@ -533,7 +498,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     CreateControls(rotate?: boolean, zoom?: boolean, pan?: boolean, roll?: boolean, axesHelper?: boolean)
     {
         this.AxesHelperButtonOnClick(this.AxesHelperButton.nativeElement);
-        this.CreateTrackBallControls(true, false, true, false);
+        this.CreateTrackBallControls(false, false, true, false);
     }
     
     CreateScenes()

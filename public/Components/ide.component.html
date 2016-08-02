@@ -113,8 +113,8 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                
-                                                <tr data-toggle="tooltip" title="{{ reach.Name }}" role="button" *ngFor="let reach of reachCollection.Reaches">
+
+                                                <tr class="" data-toggle="tooltip" title="{{ reach.Name }}" role="button" *ngFor="let reach of reachCollection.Reaches">
                                                     <td><input type="checkbox" (ngModelChange)="UpdateList($event, reach)" [ngModel]="reach.Visible" [(checked)]="reach.Visible" /></td>
                                                     <td>{{ reach.Name }}</td>
                                                     <td [style.backgroundColor]="reach.Color"></td>
@@ -133,7 +133,7 @@
                 </ul>
             </div>
         </div>
-    </div>    
+    </div>
     <div id="fileOpenModal" class="uk-modal">
         <div class="uk-modal-dialog">
             <button class="uk-modal-close uk-close"></button>

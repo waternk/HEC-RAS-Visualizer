@@ -21,8 +21,8 @@
     "three-projector": "github:DefinitelyTyped/DefinitelyTyped/threejs/three-projector.d.ts#48f20e97bfaf70fc1a9537b38aed98e9749be0ae",
     "three-shaderpass": "github:DefinitelyTyped/DefinitelyTyped/threejs/three-shaderpass.d.ts#ee05b1163d8da7f16719f08d52f70ab524f1003a",
     "three-trackball": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/threejs/three-trackballcontrols.d.ts",
-    "three-trackballorthocontrol": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/threejs/three-orthographictrackballcontrols.d.ts"
-    
+    "three-trackballorthocontrol": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/master/threejs/three-orthographictrackballcontrols.d.ts",
+    "uikit": "registry:dt/uikit#2.23.0+20160317120654"
   },
   "dependencies": {
     "d3": "registry:npm/d3#3.0.0+20160627165201",
