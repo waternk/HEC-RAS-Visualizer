@@ -1,8 +1,15 @@
 node_modules
 typings
 public/three.js-master
-public/**/*.js
-public/**/*.js.map
+public/Classes/*.js
+public/Components/*.js
+public/Services/*.js
+public/Classes/*.js.map
+public/Components/*.js.map
+public/Services/*.js.map
+public/*.js
+public/*.js.map
+
 dist
 .tmp
 .sass-cache
