@@ -5,10 +5,12 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var errorHandler = require("errorhandler");
+var cors = require('cors');
 var index_1 = require('./routes/index');
 var geometry_1 = require('./routes/geometry');
 var multer = require('multer');
 var app = express();
+app.use(cors());
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'HEC-RAS-Geometry-file-parser/uploads/');

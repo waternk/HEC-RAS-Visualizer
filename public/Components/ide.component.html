@@ -33,7 +33,7 @@
             </div>
             <div style="display:inline-block">
                 <button #RotateButton (click)="RotateButtonOnClick($event.currentTarget)" type="button" class="btn btn-default btn-xs controlButton">
-                    <i class="glyphicon glyphicon-repeat"></i>
+                    <i class="glyphicon glyphicon-refresh"></i>
                 </button>
             </div>
             <div style="display:inline-block">
@@ -74,7 +74,7 @@
                 <ul id="subnav-pill-content-1" class="uk-switcher">
                     <li class="uk-active" aria-hidden="false">
                         <div style="padding-left:5px;">
-                            <div class="uk-panel">
+                            <div *ngIf="camera" class="uk-panel">
                                 <form class="uk-form">
                                     <legend class="uk-title">Camera</legend>
                                     <div class="uk-width-1-1 uk-grid uk-margin-remove">
@@ -95,13 +95,13 @@
                                 <form class="uk-form">
                                     <legend class="uk-title">Scale</legend>
                                     <div class="uk-width-1-1 uk-grid uk-margin-remove">
-                                        <div class="uk-text-middle uk-text-left uk-width-2-5">Depth: </div>
+                                        <div class="uk-text-middle uk-text-left uk-width-2-5">Y factor: </div>
                                         <input class="uk-width-3-5 uk-text-middle" type="number" (ngModelChange)="ChangeView();" [(ngModel)]="crossScaleY" />
                                     </div>
                                 </form>
                             </div>
                             <div>
-                                <div class="uk-panel">
+                                <div *ngIf="Reaches" class="uk-panel">
                                     <legend class="uk-title">Objects</legend>
                                     <div>
                                         <table class="uk-table uk-table-hover uk-table-striped uk-table-condensed">
@@ -141,7 +141,7 @@
             <uploader [IdeApp]="IdeApp"></uploader>
             <div class="uk-modal-footer">
                 <button type="button" class="btn btn-xs btn-default uk-button uk-modal-close" (click)="CloseModal();" data-dismiss="modal">Close</button>
-                <button type="button" class="uk-button uk-button-primary uk-modal-close" (click)="CloseModal();Init();" data-dismiss="modal">Save</button>
+                <button type="button" class="uk-button uk-button-primary uk-modal-close" (click)="CloseModal();Init();" data-dismiss="modal">Load</button>
             </div>
         </div>
     </div>

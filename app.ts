@@ -6,11 +6,14 @@ import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 import * as errorHandler from "errorhandler"; 
 import * as assert from 'assert';
+import * as cors from 'cors';
 import { index } from './routes/index';
 import { geometry, uploadGeometry } from './routes/geometry';
+
 var multer = require('multer');
 
 var app = express();
+app.use(cors());
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {

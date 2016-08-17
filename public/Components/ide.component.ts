@@ -89,6 +89,13 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     @ViewChild('MeshButton') MeshButton: ElementRef;
     @ViewChild('LinesButton') LinesButton: ElementRef;
     @ViewChild('AxesHelperButton') AxesHelperButton: ElementRef;
+    xMesh: THREE.Mesh;
+    yMesh: THREE.Mesh;
+    zMesh: THREE.Mesh;
+    xObj: THREE.Object3D;
+    yObj: THREE.Object3D;
+    zObj: THREE.Object3D;
+    HelvetikerRegularFont: THREE.Font;
     IdeApp: IdeComponent;
     HECRASInputs: Array<String>;
     DisplayView: any;
@@ -124,6 +131,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         this.IdeApp = this;
         ideApp = this;
         this.DisplayView = { view: 'line' };
+        
     }
 
 
@@ -173,31 +181,45 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
             });
         }
         this.Animate();
+        
+    }
+
+    loadFont(url: string, callback: Function)
+    {
+        var loader = new THREE.FontLoader();
+        loader.load(url, (font) => 
+        {
+            callback(font);
+        });
     }
 
     ngOnInit()
     {
-        var w = window.innerWidth;
-        var h = window.innerHeight - 60;
-        this.aspect = w / h;
-        this.divCanvas = document.getElementById("canvas");
-        var parent = document.getElementById("viewport");
-        this.divCanvas.style.width = w + "px";
-        this.divCanvas.style.height = w / this.aspect + "px";
-        this.SetEventListeners();
-        this.CreateRenderer(this.divCanvas);
-        this.divCanvas.appendChild(this.renderer.domElement);
-        this.reachCollection = new ReachCollection();
-        this.CreateScenes();
-        this.CreatePlane();
-        this.CreateLight();
-        this.CreateCamera();
-        this.CreateAxesCamera();
-        this.CreateCameraHUD();
-        this.CreateHUD(this.hudScene);
-        this.SetLight();
-        this.HECRASInputs = [];
-        
+        this.loadFont('/three.js-master/examples/fonts/helvetiker_regular.typeface.json', (font: THREE.Font) => 
+        {
+            this.HelvetikerRegularFont = font;
+            var w = window.innerWidth;
+            var h = window.innerHeight - 60;
+            this.aspect = w / h;
+            this.divCanvas = document.getElementById("canvas");
+            var parent = document.getElementById("viewport");
+            this.divCanvas.style.width = w + "px";
+            this.divCanvas.style.height = w / this.aspect + "px";
+            this.SetEventListeners();
+            this.CreateRenderer(this.divCanvas);
+            this.divCanvas.appendChild(this.renderer.domElement);
+            this.reachCollection = new ReachCollection();
+            this.CreateScenes();
+            this.CreatePlane();
+            this.CreateLight();
+            this.CreateCamera();
+            this.CreateAxesCamera();
+            this.CreateCameraHUD();
+            this.CreateHUD(this.hudScene);
+            this.SetLight();
+            this.HECRASInputs = [];
+            this.SetDefualtControls();
+        });
     }
 
     ngAfterViewChecked()
@@ -207,7 +229,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
     ngAfterViewInit()
     {
-        this.SetDefualtControls();
+        
     }
 
     CreateHUD(scene: THREE.Scene)
@@ -215,14 +237,62 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         this.AxesHUD = this.buildAxes(0.1);
         this.AxesHUD.applyMatrix(new THREE.Matrix4().makeTranslation(-0.8, -0.8, 0));
         scene.add(this.AxesHUD);
+        this.hudScene.add(this.xMesh);
+        this.hudScene.add(this.yMesh);
+        this.hudScene.add(this.zMesh);
     }
 
     buildAxes(length) 
     {
+         var xGeometry = new THREE.TextGeometry( "x", {
+            font: this.HelvetikerRegularFont,
+            size: 0.035,
+            height: 0.0125,
+            curveSegments: 2,
+            bevelEnabled: false,
+            bevelThickness: 10,
+            bevelSize: 8
+        });
+        var yGeometry = new THREE.TextGeometry( "y", {
+            font: this.HelvetikerRegularFont,
+            size: 0.035,
+            height: 0.0125,
+            curveSegments: 2,
+            bevelEnabled: false,
+            bevelThickness: 10,
+            bevelSize: 8
+        });
+        var zGeometry = new THREE.TextGeometry( "z", {
+            font: this.HelvetikerRegularFont,
+            size: 0.035,
+            height: 0.0125,
+            curveSegments: 2,
+            bevelEnabled: false,
+            bevelThickness: 10,
+            bevelSize: 8
+        });
+        
+        var textMaterial = new THREE.MeshBasicMaterial( { color: 0x000000, wireframe: false } );
+        this.xMesh = new THREE.Mesh(xGeometry, textMaterial);
+        this.yMesh = new THREE.Mesh(yGeometry, textMaterial);
+        this.zMesh = new THREE.Mesh(zGeometry, textMaterial);
+        
+        this.xMesh.position.set(length, 0, 0);
+        this.yMesh.position.set(0, length, 0);
+        this.zMesh.position.set(0, 0, length);
+        this.xObj = new THREE.Object3D();
+        this.yObj = new THREE.Object3D();
+        this.zObj = new THREE.Object3D();
+        this.xObj.position.set(length, 0, 0);
+        this.yObj.position.set(0, length, 0);
+        this.zObj.position.set(0, 0, length);
         var axes = new THREE.Object3D();
         axes.add(this.buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( length, 0, 0 ), 0xFF0000, false )); // +X
         axes.add(this.buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, length, 0 ), 0x00FF00, false )); // +Y
         axes.add(this.buildAxis( new THREE.Vector3( 0, 0, 0 ), new THREE.Vector3( 0, 0, length ), 0x0000FF, false )); // +Z
+        axes.add(this.xObj);
+        axes.add(this.yObj);
+        axes.add(this.zObj);
         return axes;
     }
 
@@ -232,9 +302,9 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
             mat; 
 
         if(dashed) {
-            mat = new THREE.LineDashedMaterial({ linewidth: 3, color: colorHex, dashSize: 3, gapSize: 3 });
+            mat = new THREE.LineDashedMaterial({ linewidth: 2, color: colorHex, dashSize: 3, gapSize: 3 });
         } else {
-            mat = new THREE.LineBasicMaterial({ linewidth: 3, color: colorHex });
+            mat = new THREE.LineBasicMaterial({ linewidth: 2, color: colorHex });
         }
 
         geom.vertices.push( src.clone() );
@@ -390,7 +460,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     {
         var _viewport = {
             viewSize: this.BoundingSphereRadius,
-            aspectaspect: this.aspect,
+            aspect: this.aspect,
             left: -this.aspect * this.BoundingSphereRadius,
             right: this.aspect * this.BoundingSphereRadius,
             top: this.BoundingSphereRadius,
@@ -537,18 +607,16 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         this.reachCollection.Load(inputs, 1, this.aspect, () => 
         {
             var scaleVector3 = new THREE.Vector3(ideApp.crossScaleX, ideApp.crossScaleY, ideApp.crossScaleZ);
-            var loader = new THREE.FontLoader();
+            
             this.reachCollection.Organize();
-            loader.load( '/three.js-master/examples/fonts/helvetiker_regular.typeface.json', (font) => 
+        
+            for(var i = 0; i < this.reachCollection.Reaches.length; i++)
             {
-                for(var i = 0; i < this.reachCollection.Reaches.length; i++)
-                {
-                    this.reachCollection.Reaches[i].CreateLabelAsTextGeometry(font);
-                }
-                this.reachCollection.AddLabelsToScene(this.labelScene);
-                
-                callback();
-            });
+                this.reachCollection.Reaches[i].CreateLabelAsTextGeometry(this.HelvetikerRegularFont);
+            }
+            this.reachCollection.AddLabelsToScene(this.labelScene);
+            
+            callback();
         });
     }
 
@@ -576,7 +644,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     {
         var scaleVector3 = new THREE.Vector3(ideApp.crossScaleX, ideApp.crossScaleY, ideApp.crossScaleZ);
         var camOpts = ideApp.camera.toJSON().object;
-
+        
         if(ideApp.selectedReach)
         {
             ideApp.selectedReach.RefreshLabelPosition(ideApp.camera, ideApp.aspect, scaleVector3); 
@@ -601,6 +669,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         }
         
         ideApp.controls.update();
+        
         requestAnimationFrame(ideApp.Animate);
         ideApp.Render();
     }
@@ -608,6 +677,10 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     Render()
     {
         ideApp.AxesHUD.setRotationFromQuaternion(ideApp.camera.quaternion);
+        console.log(ideApp.xObj.position);
+        ideApp.xMesh.position.set(ideApp.xObj.matrixWorld.getPosition().x, ideApp.xObj.matrixWorld.getPosition().y, 0.1);
+        ideApp.yMesh.position.set(ideApp.yObj.matrixWorld.getPosition().x, ideApp.yObj.matrixWorld.getPosition().y, 0.1);
+        ideApp.zMesh.position.set(ideApp.zObj.matrixWorld.getPosition().x, ideApp.zObj.matrixWorld.getPosition().y, 0.1);
         ideApp.renderer.clear();
         ideApp.renderer.render(ideApp.scene, ideApp.camera);
         ideApp.renderer.clearDepth();

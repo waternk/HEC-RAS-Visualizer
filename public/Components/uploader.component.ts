@@ -71,7 +71,9 @@ export class UploaderComponent implements OnInit
 
     ngOnInit()
     {
-        
+        //  this.uploader.setOptions({
+        //       filters: [{fn: item => { return item.type === 'text/plain'; }}]
+        //  });
     }
 
     Clear()
