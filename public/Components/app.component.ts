@@ -1,26 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { RouteConfig, ROUTER_DIRECTIVES, ROUTER_PROVIDERS } from '@angular/router-deprecated';
 import { IdeComponent} from './ide.component';
 
 @Component({
     selector: 'my-app',
     template:
     `
-    <router-outlet></router-outlet>
+    <ide-app></ide-app>
     `
     ,
-    directives: [ROUTER_DIRECTIVES, IdeComponent],
-    providers: [ROUTER_PROVIDERS]
+    directives: [IdeComponent],
+    
 })
-
-@RouteConfig([
-    {
-        path: '/',
-        name: '/',
-        component: IdeComponent,
-        useAsDefault: true
-    }
-])
 
 export class AppComponent implements OnInit
 {
