@@ -1,5 +1,6 @@
 import { Cross } from './Cross';
 import { RiverPart } from './RiverPart';
+import { FontPickerComponent } from '../Components/font-picker.component';
 import * as _ from 'lodash';
 
 export class Reach {
@@ -10,9 +11,20 @@ export class Reach {
     private _visible: boolean;
     private _labelMesh: THREE.Mesh;
     private _labelHTML: HTMLElement;
+    private _labelID: string;
     private LabelHTMLObject3D: THREE.Object3D;
     private _basicMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
     
+    public get labelID(): string 
+    {
+		return this._labelID;
+	}
+
+	public set labelID(value: string) 
+    {
+		this._labelID = value;
+	}
+
     public get Visible() : boolean 
     {
         return this._visible;
@@ -97,7 +109,7 @@ export class Reach {
         this._labelMesh = mesh;     
     }
 
-    CreateLabelAsHTML()
+    CreateLabelAsHTML(font: FontPickerComponent)
     {
         this.LabelHTMLObject3D = new THREE.Object3D();
         
@@ -110,9 +122,20 @@ export class Reach {
         this.LabelHTMLObject3D.scale.set(10, 10, 1 );
         this.LabelHTMLObject3D.updateMatrixWorld(true);
         this._labelHTML = document.createElement("p");
+        this._labelID = "lbl_" + this.Name;
+        this._labelHTML.id = this._labelID;
         this._labelHTML.style.position = "absolute";
-        this._labelHTML.style.color = "red";
+        this._labelHTML.style.color = font.Color;
+        this._labelHTML.style.fontSize = font.Size + 'px';
+        this._labelHTML.style.fontFamily = font.Family;
         this._labelHTML.innerText = this.Name;
+    }
+
+    UpdateLabel(size: string, color: string, family: string)
+    {
+        this._labelHTML.style.color = color;
+        this._labelHTML.style.fontSize = size;
+        this._labelHTML.style.fontFamily = family;
     }
 
     public AddLabelToScene(scene: THREE.Scene)

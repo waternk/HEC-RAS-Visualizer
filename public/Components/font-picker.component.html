@@ -1,0 +1,16 @@
+<div class="uk-width-1-1 uk-grid uk-margin-remove">
+    <div class="uk-width-2-4 uk-text-left uk-text-middle">Font color:</div>
+    <input type='color' (ngModelChange)="color=$event;Update();" [(ngModel)]="color" class="uk-form-small uk-width-1-2" />
+</div>
+<div class="uk-width-1-1 uk-grid uk-margin-remove">
+    <div class="uk-width-2-4 uk-text-left uk-text-middle">Font size:</div>
+    <select class="uk-form-select uk-form-small uk-width-1-2" (ngModelChange)="size=$event;Update();" [(ngModel)]="size">
+        <option *ngFor="let px of pixels" >{{px}}</option>
+    </select>
+</div>
+<div class="uk-width-1-1 uk-grid uk-margin-remove">
+    <div class="uk-width-2-4 uk-text-left uk-text-middle">Font family:</div>
+    <select class="uk-form-select uk-form-small uk-width-1-2" (ngModelChange)="family=$event;Update();" [(ngModel)]="family">
+        <option *ngFor="let f of fonts" [style.fontFamily]="f" >{{f}}</option>
+    </select>
+</div>

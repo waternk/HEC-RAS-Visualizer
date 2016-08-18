@@ -1,5 +1,6 @@
 import { Component, OnInit, Injectable, ViewChild, ElementRef, AfterViewChecked, AfterViewInit, ViewEncapsulation } from '@angular/core';
 import { UploaderComponent } from './uploader.component';
+import { FontPickerComponent } from './font-picker.component';
 import { Reach } from '../Classes/Reach';
 import { Cross } from '../Classes/Cross';
 import { FileManager } from '../Classes/FileManager';
@@ -85,12 +86,13 @@ import * as $ from 'jquery';
     }
 
     `],
-    directives: [UploaderComponent]
+    directives: [UploaderComponent, FontPickerComponent]
 })
 
 export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 {
     @ViewChild(UploaderComponent) Uploader: UploaderComponent;
+    @ViewChild(FontPickerComponent) FontPicker: FontPickerComponent;
     @ViewChild('ZoomAllButton') ZoomAllButton: ElementRef;
     @ViewChild('ZoomInButton') ZoomInButton: ElementRef;
     @ViewChild('ZoomOutButton') ZoomOutButton: ElementRef;
@@ -101,7 +103,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     @ViewChild('LinesButton') LinesButton: ElementRef;
     @ViewChild('AxesHelperButton') AxesHelperButton: ElementRef;
     @ViewChild("LabelsContainer") LabelsContainer: ElementRef;
-
+    
     HelvetikerRegularFont: THREE.Font;
     IdeApp: IdeComponent;
     HECRASInputs: Array<String>;
@@ -132,22 +134,12 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     controls: THREE.OrthographicTrackballControls;
     prevCtrls: THREE.OrthographicTrackballControls;
     prevCam: THREE.OrthographicCamera;
-    pixels: Array<number>;
-    font: Font;
 
     constructor()
     {
         this.IdeApp = this;
         ideApp = this;
         this.DisplayView = { view: 'line' };
-        this.pixels = [];
-        this.font = new Font();
-        this.font.size = 13;
-        this.font.color = "#ff0000";
-        for (var i = 10; i < 50; i++)
-        {
-            this.pixels.push(i);
-        }
     }
 
 
@@ -245,7 +237,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
     ngAfterViewInit()
     {
-  
+        
     }
 
     CreateHUD(scene: THREE.Scene)
@@ -344,10 +336,15 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     LabelButtonOnClick(element: HTMLElement)
     {
         ideApp.LabelButton.nativeElement.pressed = ideApp.ToggleButton(element);
+        this.RefreshLabelsContainer();
+    }
+
+    RefreshLabelsContainer()
+    {
         if(ideApp.LabelButton.nativeElement.pressed)
-            ideApp.LabelsContainer.nativeElement.style.visibility = "visible";
+            ideApp.LabelsContainer.nativeElement.style.display = "block";
         else
-            ideApp.LabelsContainer.nativeElement.style.visibility = "hidden";
+            ideApp.LabelsContainer.nativeElement.style.display = "none";
     }
 
     CalculateBoundingSphere()
@@ -448,6 +445,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     UpdateList(newValue:boolean, model: Reach)
     {
         model.Visible = newValue;
+        document.getElementById(model.labelID).style.visibility = model.Visible ? 'visible' : 'hidden';
         this.DisplayAllReaches();
     }
 
@@ -555,11 +553,11 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
             for(var i = 0; i < this.reachCollection.Reaches.length; i++)
             {
                 //this.reachCollection.Reaches[i].CreateLabelAsTextGeometry(this.HelvetikerRegularFont);
-                this.reachCollection.Reaches[i].CreateLabelAsHTML();
+                this.reachCollection.Reaches[i].CreateLabelAsHTML(this.FontPicker);
             }
             //this.reachCollection.AddLabelsToScene(this.labelScene);
             this.reachCollection.AddHTMLLabelsToElem(this.LabelsContainer.nativeElement);
-            
+            this.RefreshLabelsContainer();
             callback();
         });
     }
@@ -617,6 +615,15 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         
         requestAnimationFrame(ideApp.Animate);
         ideApp.Render();
+    }
+
+    UpdateLabels(size: string, color: string, family: string)
+    {
+        for (var i = 0; i < this.reachCollection.Reaches.length; i++)
+        {
+            var reach = this.reachCollection.Reaches[i];
+            reach.UpdateLabel(size, color, family);
+        }
     }
 
     Render()
