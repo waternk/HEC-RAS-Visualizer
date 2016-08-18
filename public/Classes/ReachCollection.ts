@@ -109,11 +109,21 @@ export class ReachCollection
         {
             var reach = this.Reaches[r];
             if(reach.Visible)
-                geo.mergeMesh(reach.Label);
+                geo.mergeMesh(reach.LabelMesh);
             
         }
         var mesh = new THREE.Mesh(geo, this._labelMaterial);
         scene.add(mesh);
+    }
+
+    public AddHTMLLabelsToElem(container: HTMLElement)
+    {
+        for (var r = 0; r < this.Reaches.length; r++) 
+        {
+            var reach = this.Reaches[r];
+            if(reach.Visible)
+                container.appendChild(reach.labelHTML);
+        }
     }
     
     public AddReachesLikeMeshToScene(scene: THREE.Scene, camera: THREE.Camera, cameraHUD: THREE.Camera, canvas: HTMLElement, scaleVector?: THREE.Vector3)

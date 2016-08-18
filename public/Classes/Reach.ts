@@ -8,7 +8,9 @@ export class Reach {
     private _crosses: Array<Cross>;
     private _color: string;
     private _visible: boolean;
-    private _label: THREE.Mesh;
+    private _labelMesh: THREE.Mesh;
+    private _labelHTML: HTMLElement;
+    private LabelHTMLObject3D: THREE.Object3D;
     private _basicMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff });
     
     public get Visible() : boolean 
@@ -21,14 +23,22 @@ export class Reach {
         this._visible = v;
     }
     
-    public get Label() : THREE.Mesh 
+    public get labelHTML(): HTMLElement {
+		return this._labelHTML;
+	}
+
+	public set labelHTML(value: HTMLElement) {
+		this._labelHTML = value;
+	}
+
+    public get LabelMesh() : THREE.Mesh 
     {
-        return this._label;
+        return this._labelMesh;
     }
     
-    public set Label(v : THREE.Mesh) 
+    public set LabelMesh(v : THREE.Mesh) 
     {
-        this._label = v;
+        this._labelMesh = v;
     }
     
     public get Color() : string 
@@ -84,58 +94,69 @@ export class Reach {
             this.Crosses[Math.floor(this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].y,
             this.Crosses[Math.floor(this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].z
         );
-        this._label = mesh;     
+        this._labelMesh = mesh;     
+    }
+
+    CreateLabelAsHTML()
+    {
+        this.LabelHTMLObject3D = new THREE.Object3D();
+        
+        this.LabelHTMLObject3D.position.set(this.Crosses[Math.floor(
+            this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].x,
+            this.Crosses[Math.floor(this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].y,
+            this.Crosses[Math.floor(this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].z
+        );
+        
+        this.LabelHTMLObject3D.scale.set(10, 10, 1 );
+        this.LabelHTMLObject3D.updateMatrixWorld(true);
+        this._labelHTML = document.createElement("p");
+        this._labelHTML.style.position = "absolute";
+        this._labelHTML.style.color = "red";
+        this._labelHTML.innerText = this.Name;
     }
 
     public AddLabelToScene(scene: THREE.Scene)
     {
-        if(this.Label)
-            scene.add(this.Label);
+        if(this.LabelMesh)
+            scene.add(this.LabelMesh);
     }
 
-    public RefreshLabelPosition(camera: THREE.Camera, ratio: number, scaleVector: THREE.Vector3)
+    public RefreshLabelPosition(camera: THREE.Camera, scaleVector: THREE.Vector3)
     {
-        if(!this.Label)
+        if(!this.LabelMesh)
             return;
-        this.Label.position.set(this.Crosses[Math.floor(
+        this.LabelMesh.position.set(this.Crosses[Math.floor(
             this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].x * scaleVector.x,
             this.Crosses[Math.floor(this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].y  * scaleVector.y,
             this.Crosses[Math.floor(this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].z  * scaleVector.z
         );
-        this.Label.updateMatrixWorld(true);
+        this.LabelMesh.updateMatrixWorld(true);
         
         var vector = new THREE.Vector3();
-        vector.setFromMatrixPosition(this.Label.matrixWorld);
+        vector.setFromMatrixPosition(this.LabelMesh.matrixWorld);
         vector.project(camera);
-        this.Label.position.set(vector.x, vector.y, vector.z);
+        this.LabelMesh.position.set(vector.x, vector.y, vector.z);
     }
 
-    public ShowLabelAsHTML(scene: THREE.Scene, camera: THREE.Camera, canvas: HTMLElement, container: any, scaleVector: THREE.Vector3)
+    public RefreshHTMLLabelPosition(camera: THREE.Camera, scaleVector: THREE.Vector3, canvas: HTMLElement)
     {
-            var obj = new THREE.Object3D();
-            var vector = new THREE.Vector3();
-
-            obj.position.set(this.Crosses[Math.floor(
-                this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].x * scaleVector.x,
-                this.Crosses[Math.floor(this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].y  * scaleVector.y,
-                this.Crosses[Math.floor(this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].z  * scaleVector.z
-            );
-            obj.scale.set(10, 10, 1 );
-            obj.updateMatrixWorld(true);
-            vector.setFromMatrixPosition(obj.matrixWorld);
-            vector.project(camera);
-
-            vector.x = ( vector.x * canvas.clientWidth/2 ) + canvas.clientWidth/2;
-            vector.y = ( vector.y * canvas.clientHeight/2 ) + canvas.clientHeight/2;
-
-            var elem = document.createElement("p");
-            elem.style.position="absolute";
-            elem.style.color="red";
-            elem.innerText = this.Name;
-            container.appendChild(elem);
-
-            elem.style.left = vector.x + 'px';
-            elem.style.top = (canvas.clientHeight - vector.y) + 'px';    
+        if(!this.labelHTML)
+            return;
+        this.LabelHTMLObject3D.position.set(this.Crosses[Math.floor(
+            this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].x * scaleVector.x,
+            this.Crosses[Math.floor(this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].y  * scaleVector.y,
+            this.Crosses[Math.floor(this.Crosses.length / 2)].vertices[Math.floor(this.Crosses[Math.floor(this.Crosses.length / 2)].vertices.length / 2)].z  * scaleVector.z
+        );
+        this.LabelHTMLObject3D.updateMatrixWorld(true);
+        
+        var vector = new THREE.Vector3();
+        vector.setFromMatrixPosition(this.LabelHTMLObject3D.matrixWorld);
+        vector.project(camera);
+        vector.x = ( vector.x * canvas.clientWidth/2 ) + canvas.clientWidth/2;
+        vector.y = ( vector.y * canvas.clientHeight/2 ) + canvas.clientHeight/2;
+        this.LabelHTMLObject3D.position.set(vector.x, vector.y, vector.z);
+        this._labelHTML.style.left = vector.x + 'px';
+        this._labelHTML.style.top = (canvas.clientHeight - vector.y) + 'px';  
     }
 
     public AddToSceneLikeMesh(scene: THREE.Scene, camera: THREE.Camera, cameraHUD: THREE.Camera, scaleVector?: THREE.Vector3)
