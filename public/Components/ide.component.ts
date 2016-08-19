@@ -34,6 +34,7 @@ import * as $ from 'jquery';
         top: 0;
         left: 0;
         overflow: hidden;
+        cursor: default;
     }
     #rightpanel{ 
         /*float:right;
@@ -84,7 +85,6 @@ import * as $ from 'jquery';
     .btn:focus, .btn:active{
         outline: none !important;
     }
-
     `],
     directives: [UploaderComponent, FontPickerComponent]
 })
@@ -337,6 +337,16 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     {
         ideApp.LabelButton.nativeElement.pressed = ideApp.ToggleButton(element);
         this.RefreshLabelsContainer();
+        this.RefreshLabelsPosition();
+    }
+
+    RefreshLabelsPosition()
+    {
+        for(var i = 0; i < this.reachCollection.Reaches.length; i++)
+        {
+            var reach = this.reachCollection.Reaches[i];
+            reach.RefreshHTMLLabelPosition(ideApp.camera, new THREE.Vector3(ideApp.crossScaleX, ideApp.crossScaleY, ideApp.crossScaleZ), ideApp.divCanvas);
+        }
     }
 
     RefreshLabelsContainer()
@@ -418,6 +428,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         this.camera.up.set(0, 0, 1);
         
         this.camera.updateProjectionMatrix();
+        this.RefreshLabelsPosition();
 
         // var sg = new THREE.SphereGeometry(this.BoundingSphereRadius);
         // sg.applyMatrix(new THREE.Matrix4().makeTranslation(this.BoundingSphereCenter.x, this.BoundingSphereCenter.y, this.BoundingSphereCenter.z))
@@ -552,11 +563,11 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         
             for(var i = 0; i < this.reachCollection.Reaches.length; i++)
             {
-                //this.reachCollection.Reaches[i].CreateLabelAsTextGeometry(this.HelvetikerRegularFont);
-                this.reachCollection.Reaches[i].CreateLabelAsHTML(this.FontPicker);
+                var reach = this.reachCollection.Reaches[i];
+                reach.CreateLabelAsHTML(this.FontPicker);
             }
-            //this.reachCollection.AddLabelsToScene(this.labelScene);
             this.reachCollection.AddHTMLLabelsToElem(this.LabelsContainer.nativeElement);
+            
             this.RefreshLabelsContainer();
             callback();
         });
@@ -606,7 +617,6 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
             for (var i = 0; i < ideApp.reachCollection.Reaches.length; i++)
             {
                 var reach = ideApp.reachCollection.Reaches[i];
-                //reach.RefreshLabelPosition(ideApp.camera, scaleVector3);
                 reach.RefreshHTMLLabelPosition(ideApp.camera, scaleVector3, ideApp.divCanvas);           
             }
         }
@@ -617,12 +627,12 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         ideApp.Render();
     }
 
-    UpdateLabels(size: string, color: string, family: string)
+    UpdateLabels(font: FontPickerComponent)
     {
         for (var i = 0; i < this.reachCollection.Reaches.length; i++)
         {
             var reach = this.reachCollection.Reaches[i];
-            reach.UpdateLabel(size, color, family);
+            reach.UpdateLabel(font);
         }
     }
 

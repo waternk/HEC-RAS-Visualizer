@@ -125,17 +125,17 @@ export class Reach {
         this._labelID = "lbl_" + this.Name;
         this._labelHTML.id = this._labelID;
         this._labelHTML.style.position = "absolute";
-        this._labelHTML.style.color = font.Color;
-        this._labelHTML.style.fontSize = font.Size + 'px';
-        this._labelHTML.style.fontFamily = font.Family;
+        this.UpdateLabel(font);
         this._labelHTML.innerText = this.Name;
     }
 
-    UpdateLabel(size: string, color: string, family: string)
+    UpdateLabel(font: FontPickerComponent)
     {
-        this._labelHTML.style.color = color;
-        this._labelHTML.style.fontSize = size;
-        this._labelHTML.style.fontFamily = family;
+        this._labelHTML.style.color = font.Color;
+        this._labelHTML.style.fontSize = font.Size;
+        this._labelHTML.style.fontFamily = font.Family;
+        this._labelHTML.style.fontStyle = font.Style;
+        this._labelHTML.style.fontWeight = font.Weight;
     }
 
     public AddLabelToScene(scene: THREE.Scene)

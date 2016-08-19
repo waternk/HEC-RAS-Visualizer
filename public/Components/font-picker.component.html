@@ -1,6 +1,20 @@
 <div class="uk-width-1-1 uk-grid uk-margin-remove">
-    <div class="uk-width-2-4 uk-text-left uk-text-middle">Font color:</div>
-    <input type='color' (ngModelChange)="color=$event;Update();" [(ngModel)]="color" class="uk-form-small uk-width-1-2" />
+    <div class="uk-width-2-4 uk-text-left uk-text-middle">Font:</div>
+    <select class="uk-form-select uk-form-small uk-width-1-2" (ngModelChange)="family=$event;Update();" [(ngModel)]="family">
+        <option *ngFor="let f of fonts" [style.fontFamily]="f" >{{f}}</option>
+    </select>
+</div>
+<div class="uk-width-1-1 uk-grid uk-margin-remove">
+    <div class="uk-width-2-4 uk-text-left uk-text-middle">Font style:</div>
+    <select class="uk-form-select uk-form-small uk-width-1-2" (ngModelChange)="style=$event;Update();" [(ngModel)]="style">
+        <option *ngFor="let s of styles" [style.fontStyle]="s" >{{s}}</option>
+    </select>
+</div>
+<div class="uk-width-1-1 uk-grid uk-margin-remove">
+    <div class="uk-width-2-4 uk-text-left uk-text-middle">Font weight:</div>
+    <select class="uk-form-select uk-form-small uk-width-1-2" (ngModelChange)="weight=$event;Update();" [(ngModel)]="weight">
+        <option *ngFor="let w of weights" [style.fontWeight]="w" >{{w}}</option>
+    </select>
 </div>
 <div class="uk-width-1-1 uk-grid uk-margin-remove">
     <div class="uk-width-2-4 uk-text-left uk-text-middle">Font size:</div>
@@ -9,8 +23,24 @@
     </select>
 </div>
 <div class="uk-width-1-1 uk-grid uk-margin-remove">
-    <div class="uk-width-2-4 uk-text-left uk-text-middle">Font family:</div>
-    <select class="uk-form-select uk-form-small uk-width-1-2" (ngModelChange)="family=$event;Update();" [(ngModel)]="family">
-        <option *ngFor="let f of fonts" [style.fontFamily]="f" >{{f}}</option>
-    </select>
+    <div class="uk-width-2-4 uk-text-left uk-text-middle">Font color:</div>
+    <input type='color' (ngModelChange)="color=$event;Update();" [(ngModel)]="color" class="uk-form-small uk-width-1-2" />
+</div>
+
+<div class="uk-width-1-1 uk-grid" style="margin: 0; margin-top: 40px">
+    <!--<div class="uk-width-1-1 uk-text-left uk-text-middle">Preview:</div>-->
+
+    <div class="uk-panel uk-panel-box uk-panel-box-primary uk-width-1-1 uk-margin-remove">
+        <div class="uk-text-muted uk-text-small" >Preview</div>
+        <div
+        [style.fontFamily]="family"
+        [style.fontStyle]="style"
+        [style.fontWeight]="weight"
+        [style.fontSize]="'22px'"
+        [style.color]="color"
+        [style.textAlign]="'center'"
+        >
+            {{family}}
+        </div>
+    </div>
 </div>

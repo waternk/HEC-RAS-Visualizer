@@ -12,8 +12,34 @@ export class FontPickerComponent implements OnInit
     private size: string;
     private color: string;
     private family: string;
+
+    private style: string;
+    private weight: string;
+
     private pixels: Array<string>;
     private fonts: Array<string>;
+    private styles: Array<string>;
+    private weights: Array<string>;
+
+    public get Weight(): string 
+    {
+		return this.weight;
+	}
+
+	public set Weight(value: string) 
+    {
+		this.weight = value;
+	}
+
+	public get Style(): string 
+    {
+		return this.style;
+	}
+
+	public set Style(value: string) 
+    {
+		this.style = value;
+	}
 
     public get Family(): string
     {
@@ -25,16 +51,6 @@ export class FontPickerComponent implements OnInit
 		this.family = value;
 	}
 
-	public get Fonts(): Array<string> 
-    {
-		return this.fonts;
-	}
-
-	public set Fonts(value: Array<string>) 
-    {
-		this.fonts = value;
-	}
-    
     public get Size(): string 
     {
         return this.size;
@@ -55,16 +71,6 @@ export class FontPickerComponent implements OnInit
 		this.color = value;
 	}
 
-	public get Pixels(): Array<string> 
-    {
-		return this.pixels;
-	}
-
-	public set Pixels(value: Array<string>) 
-    {
-		this.pixels = value;
-	}
-
     constructor()
     { 
 
@@ -79,12 +85,13 @@ export class FontPickerComponent implements OnInit
     private SetSelects()
     {
         this.pixels = [];
-        for (var i = 10; i < 50; i++)
+        for (var i = 15; i < 50; i++)
         {
             this.pixels.push(i+"px");
         }
         this.fonts = ['Lucida Console', 'Arial', 'Times New Roman'];
-        
+        this.styles = ['normal', 'italic', 'oblique'];
+        this.weights = ['normal', 'bold'];
     }
 
     private SetDefaults()
@@ -92,11 +99,13 @@ export class FontPickerComponent implements OnInit
         this.color = "#ff0000";
         this.size = this.pixels[0];
         this.family = this.fonts[0];
+        this.style = this.styles[0];
+        this.weight = this.weights[0];
     }
     
-    private Update()
+    public Update()
     {
-        this.IdeApp.UpdateLabels(this.size, this.color, this.family);
+        this.IdeApp.UpdateLabels(this);
     }
 
 }
