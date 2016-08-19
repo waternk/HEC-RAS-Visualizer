@@ -5,7 +5,6 @@ import { Reach } from '../Classes/Reach';
 import { Cross } from '../Classes/Cross';
 import { FileManager } from '../Classes/FileManager';
 import { ReachCollection } from '../Classes/ReachCollection';
-import { Font } from '../Classes/Font';
 import { Axes } from '../Classes/Axes';
 import * as _ from 'lodash';
 import * as $ from 'jquery';
@@ -170,19 +169,23 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         }
     }
 
-    Init()
+    Load()
     {
-        this.reachCollection.Clear();
+        this.reachCollection = new ReachCollection();
         this.ClearScene(this.scene);
         this.ClearScene(this.labelScene);
-        
         this.selectedReach = null;
         this.Reaches = [];
+        
+        while (this.LabelsContainer.nativeElement.firstChild) {
+            this.LabelsContainer.nativeElement.removeChild(this.LabelsContainer.nativeElement.firstChild);
+        }
         
         if(this.HECRASInputs.length > 0)
         {
             this.initReachCollection(this.HECRASInputs, () =>
             {
+                this.HECRASInputs = [];
                 this.CalculateBoundingSphere();
                 this.DisplayAllReaches();
                 this.SetCamera();  
@@ -216,7 +219,6 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
             this.SetEventListeners();
             this.CreateRenderer(this.divCanvas);
             this.divCanvas.appendChild(this.renderer.domElement);
-            this.reachCollection = new ReachCollection();
             this.CreateScenes();
             this.CreatePlane();
             this.CreateLight();
@@ -462,6 +464,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
     DisplayAllReaches()
     {
+        if(!this.reachCollection) return;
         this.ClearScene(this.scene);
         this.ClearScene(this.labelScene);
         
