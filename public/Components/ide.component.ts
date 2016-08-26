@@ -510,7 +510,6 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     {
         
         this.controls = new THREE.OrthographicTrackballControls(this.camera, this.divCanvas);
-        this.controls.STATE = { NONE: - 1, ROTATE: 0, ZOOM: 1, PAN: 0, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4 };
         this.controls.addEventListener('change', this.Render);
         this.controls.noRotate = (rotate == false || undefined ) ? true : false;
         this.controls.noZoom = (zoom == false || undefined ) ? true : false;
