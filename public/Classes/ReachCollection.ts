@@ -1,7 +1,6 @@
 import { Cross } from './Cross';
 import { Reach } from './Reach';
 import { RiverPart } from './RiverPart';
-import { FileManager } from './FileManager';
 
 export class ReachCollection 
 {

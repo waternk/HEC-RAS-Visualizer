@@ -1,6 +1,6 @@
 import { Component, OnInit, Injectable, Input, Output, ViewChild, ElementRef } from '@angular/core';
 import { CORE_DIRECTIVES, FORM_DIRECTIVES, NgClass, NgStyle } from '@angular/common';
-import { FILE_UPLOAD_DIRECTIVES, FileUploader } from 'ng2-file-upload';
+import { FILE_UPLOAD_DIRECTIVES, FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 import { IdeComponent } from './ide.component'; 
 import * as _ from 'lodash';
 import * as $ from 'jquery';
@@ -58,20 +58,50 @@ export class UploaderComponent implements OnInit
     @Input() IdeApp: IdeComponent;
     @ViewChild('InputFile') InputFile: ElementRef;
 
-    public uploader:FileUploader = new FileUploader({url: 'http://localhost:3000/geometry'});
-    
-    
+    public uploader:FileUploader = new FileUploader({url: 'http://localhost:3000/geometry', filters: [{name: 'fileType', fn: this.CheckFile }] });
+        
     constructor()
     {
+        uploaderComponent = this;
         this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => 
         {
             this.IdeApp.PushInput(response);
         }
+
+        this.uploader.onCompleteAll = () => 
+        {
+            var opts : UIkit.NotifyOptions = {};
+            opts.message = "<i class='uk-icon-upload'></i> Upload successfully finished.";
+            opts.pos = "top-center";
+            opts.status = "success";
+            opts.timeout = 5000;
+            UIkit.notify(opts);
+        }
+        
     }
 
     ngOnInit()
     {
      
+    }
+
+    CheckFile(file: any)
+    {
+        console.log(file);
+        var regex = /[a-zA-Z0-9]+\.g[0-9]*/;
+        if(regex.test(file.name))
+        {
+            console.log(true);
+            return true;
+        }
+        uploaderComponent.InputFile.nativeElement.value = "";
+        var opts : UIkit.NotifyOptions = {};
+        opts.message = "<i class='uk-icon-warning'></i> Error: File format is inadequate.";
+        opts.pos = "top-center";
+        opts.status = "danger";
+        opts.timeout = 5000;
+        UIkit.notify(opts);
+        return false;
     }
 
     Clear()
@@ -81,3 +111,4 @@ export class UploaderComponent implements OnInit
         this.InputFile.nativeElement.value = "";
     }
 }
+var uploaderComponent : UploaderComponent; 

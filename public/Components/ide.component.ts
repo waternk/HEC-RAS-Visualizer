@@ -3,7 +3,6 @@ import { UploaderComponent } from './uploader.component';
 import { FontPickerComponent } from './font-picker.component';
 import { Reach } from '../Classes/Reach';
 import { Cross } from '../Classes/Cross';
-import { FileManager } from '../Classes/FileManager';
 import { ReachCollection } from '../Classes/ReachCollection';
 import { Axes } from '../Classes/Axes';
 import * as _ from 'lodash';
@@ -116,7 +115,6 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     crossScaleZ: number = 1;
     Reaches: Array<Reach>;
     divCanvas: HTMLElement;
-    fileManager: FileManager;
     camera: THREE.OrthographicCamera;
     AxesCamera: THREE.OrthographicCamera;
     cameraHUD: THREE.Camera;
