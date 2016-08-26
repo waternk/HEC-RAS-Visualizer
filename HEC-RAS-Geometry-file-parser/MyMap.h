@@ -26,6 +26,11 @@ public:
 		this->clear();
 	}
 
+	inline void RemoveKey(int& key)
+	{
+		this->clear();
+	}
+
 	inline void RemoveAll()
 	{
 		this->clear();

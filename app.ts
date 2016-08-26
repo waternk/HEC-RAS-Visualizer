@@ -8,7 +8,7 @@ import * as errorHandler from "errorhandler";
 import * as assert from 'assert';
 import * as cors from 'cors';
 import { index } from './routes/index';
-import { geometry, uploadGeometry } from './routes/geometry';
+import { uploadGeometry } from './routes/geometry';
 
 var multer = require('multer');
 
@@ -42,8 +42,6 @@ app.use('/systemjs.config.js', express.static(__dirname + '/systemjs.config.js')
 
 app.get('/', index);
 app.get('/index', index);
-app.get('/geometry', geometry);
-
 app.post('/geometry', upload.single('file'), uploadGeometry);
 
 var env = process.env.NODE_ENV || 'development';

@@ -4,15 +4,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from "os";
 
-export function geometry(req: any, res: Response) 
+export function uploadGeometry(req: any, res: Response)
 {
+    console.log(os);
     if(os.platform() == "win32")
     {
-        
-    }
-    else
-    {
-        child_process.exec("cd HEC-RAS-Geometry-file-parser && ./hec /Users/filiptubic/Downloads/GRF-Ustaljeno18122015/DjerdapTestovi-GRF.g07", (error, stdout, stderr) => 
+        child_process.exec("cd HEC-RAS-Geometry-file-parser && hec uploads/" + req.file.originalname , (error, stdout, stderr) => 
         {
             if (error !== null)
             {
@@ -25,24 +22,22 @@ export function geometry(req: any, res: Response)
                 res.sendFile(path.join(__dirname, '../HEC-RAS-Geometry-file-parser/finalno.txt'));
             }  
         });
-    }   
-    
-};
-
-export function uploadGeometry(req: any, res: Response)
-{
-    console.log(req.file.path);
-    child_process.exec("cd HEC-RAS-Geometry-file-parser && ./hec uploads/" + req.file.originalname , (error, stdout, stderr) => 
+    }
+    else
     {
-        if (error !== null)
+        child_process.exec("cd HEC-RAS-Geometry-file-parser && ./hec uploads/" + req.file.originalname , (error, stdout, stderr) => 
         {
-            console.log(error);
-            res.statusMessage = error.message;
-            res.status(500).end();
-        }
-        else
-        {
-            res.sendFile(path.join(__dirname, '../HEC-RAS-Geometry-file-parser/finalno.txt'));
-        }  
-    });
+            if (error !== null)
+            {
+                console.log(error);
+                res.statusMessage = error.message;
+                res.status(500).end();
+            }
+            else
+            {
+                res.sendFile(path.join(__dirname, '../HEC-RAS-Geometry-file-parser/finalno.txt'));
+            }  
+        });
+    }
+    
 }

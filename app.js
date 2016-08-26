@@ -32,7 +32,6 @@ app.use('/bower_components', express.static(__dirname + '/bower_components/'));
 app.use('/systemjs.config.js', express.static(__dirname + '/systemjs.config.js'));
 app.get('/', index_1.index);
 app.get('/index', index_1.index);
-app.get('/geometry', geometry_1.geometry);
 app.post('/geometry', upload.single('file'), geometry_1.uploadGeometry);
 var env = process.env.NODE_ENV || 'development';
 if (env === 'development') {
