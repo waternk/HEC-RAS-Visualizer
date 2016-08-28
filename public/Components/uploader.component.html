@@ -21,16 +21,16 @@
             </td>
             <td nowrap>
                 <button type="button" class="uk-button uk-button-success uk-button-mini"
-                        (click)="item.upload()" [disabled]="item.isReady || item.isUploading || item.isSuccess">
+                        (click)="Upload(item)" [disabled]="item.isReady || item.isUploading || item.isSuccess">
                     <span class="glyphicon glyphicon-upload"></span> 
                     Upload
                 </button>
                 <button type="button" class="uk-button uk-button-mini uk-button-warning"
-                        (click)="item.cancel()" [disabled]="!item.isUploading">
+                        (click)="Cancel(item)" [disabled]="!item.isUploading">
                     <span class="glyphicon glyphicon-ban-circle"></span> Cancel
                 </button>
                 <button type="button" class="uk-button uk-button-danger uk-button-mini"
-                        (click)="item.remove()">
+                        (click)="Remove(item)">
                     <span class="glyphicon glyphicon-trash"></span> Remove
                 </button>
             </td>
@@ -45,15 +45,15 @@
             </div>
         </div>
         <button type="button" class="uk-button uk-button-success uk-button-mini"
-                (click)="uploader.uploadAll()" [disabled]="!uploader.getNotUploadedItems().length">
+                (click)="UploadAll();" [disabled]="!uploader.getNotUploadedItems().length">
             <span class="glyphicon glyphicon-upload"></span> Upload all
         </button>
         <button type="button" class="uk-button uk-button-mini uk-button-warning"
-                (click)="uploader.cancelAll()" [disabled]="!uploader.isUploading">
+                (click)="CancelAll();" [disabled]="!uploader.isUploading">
             <span class="glyphicon glyphicon-ban-circle"></span> Cancel all
         </button>
         <button type="button" class="uk-button uk-button-danger uk-button-mini"
-                (click)="uploader.clearQueue()" [disabled]="!uploader.queue.length">
+                (click)="RemoveAll();" [disabled]="!uploader.queue.length">
             <span class="glyphicon glyphicon-trash"></span> Remove all
         </button>
     </div>

@@ -167,30 +167,30 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         }
     }
 
-    Load()
+    CreateReachCollection()
     {
         this.reachCollection = new ReachCollection();
+    }
+
+    Load()
+    {
+        this.CreateReachCollection()
         this.ClearScene(this.scene);
-        this.ClearScene(this.labelScene);
+        this.ClearLabelsContainer();
         this.selectedReach = null;
         this.Reaches = [];
         
-        while (this.LabelsContainer.nativeElement.firstChild) {
-            this.LabelsContainer.nativeElement.removeChild(this.LabelsContainer.nativeElement.firstChild);
-        }
-        
         if(this.HECRASInputs.length > 0)
         {
-            this.initReachCollection(this.HECRASInputs, () =>
+            this.InitReachCollection(this.HECRASInputs, () =>
             {
                 this.HECRASInputs = [];
                 this.CalculateBoundingSphere();
                 this.DisplayAllReaches();
                 this.SetCamera();  
             });
-        }
-        this.Animate();
-        
+            this.Animate();
+        }        
     }
 
     loadFont(url: string, callback: Function)
@@ -464,7 +464,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     {
         if(!this.reachCollection) return;
         this.ClearScene(this.scene);
-        this.ClearScene(this.labelScene);
+        //this.ClearScene(this.labelScene);
         
         this.selectedReach = null;
         var scaleVector3 = new THREE.Vector3(this.crossScaleX, this.crossScaleY, this.crossScaleZ);
@@ -474,12 +474,12 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         else
             this.reachCollection.AddReachesLikeLinesToScene(this.scene, this.camera, this.cameraHUD, this.divCanvas, scaleVector3);    
         
-        for (var i = 0; i < this.reachCollection.Reaches.length; i++)
-        {
-            var reach: Reach = this.reachCollection.Reaches[i];
-            if(reach.Visible)
-                reach.AddLabelToScene(this.labelScene);
-        }
+        // for (var i = 0; i < this.reachCollection.Reaches.length; i++)
+        // {
+        //     var reach: Reach = this.reachCollection.Reaches[i];
+        //     if(reach.Visible)
+        //         reach.AddLabelToScene(this.labelScene);
+        // }
         //this.reachCollection.AddLabelsToScene(this.labelScene); //bug
         this.SetLight();
     }
@@ -491,6 +491,14 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         for( var i = scene.children.length - 1; i >= 0; i--)
         { 
             scene.remove(scene.children[i]);
+        }
+    }
+
+    ClearLabelsContainer()
+    {
+        while (this.LabelsContainer.nativeElement.firstChild) 
+        {
+            this.LabelsContainer.nativeElement.removeChild(this.LabelsContainer.nativeElement.firstChild);
         }
     }
 
@@ -554,9 +562,9 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         this.cameraHUD = new THREE.OrthographicCamera(-this.aspect, this.aspect, 1, -1, -1, 1);
     }
 
-    initReachCollection(inputs: Array<String>, callback: Function)
+    InitReachCollection(inputs: Array<String>, callback: Function)
     {
-        this.reachCollection.Load(inputs, 1, this.aspect, () => 
+        this.reachCollection.Load(inputs, 1, () => 
         {
             var scaleVector3 = new THREE.Vector3(ideApp.crossScaleX, ideApp.crossScaleY, ideApp.crossScaleZ);
             

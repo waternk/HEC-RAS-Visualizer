@@ -229,7 +229,7 @@ export class ReachCollection
         return color;
     }
     
-    Load(inputs: Array<String>, scale: number, ratio:number, callback: Function)
+    Load(inputs: Array<String>, scale: number, callback: Function)
     {
         for (var k = 0; k < inputs.length; k++) 
         {

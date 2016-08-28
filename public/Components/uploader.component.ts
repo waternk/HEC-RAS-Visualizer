@@ -80,12 +80,42 @@ export class UploaderComponent implements OnInit
         
     }
 
+    Upload(file: any)
+    {
+        file.upload();
+    }
+    
+    Remove(file: any)
+    {
+        file.remove();
+    }
+    
+    Cancel(file: any)
+    {
+        file.cancel();
+    }
+    
+    UploadAll()
+    {
+        uploaderComponent.uploader.uploadAll();
+    }
+
+    CancelAll()
+    {
+        uploaderComponent.uploader.cancelAll();
+    }
+
+    RemoveAll()
+    {
+        uploaderComponent.uploader.clearQueue();
+    }
+
     ngOnInit()
     {
      
     }
 
-    CheckFile(file: any)
+    CheckFile(file: any) : boolean
     {
         console.log(file);
         var regex = /[a-zA-Z0-9]+\.g[0-9]*/;
