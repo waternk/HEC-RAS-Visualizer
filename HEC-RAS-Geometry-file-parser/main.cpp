@@ -4,55 +4,52 @@
 #include "HecDoc.h"
 #include <stdio.h>
 
+void printReachHeader(CReach& reach, FILE *out)
+{
+    fprintf(out, "reach\n");
+    fprintf(out, "%s\n", reach.m_sName.c_str());
+}
+
+void printCrossSectionHeader(CCrossSection ccsObj, FILE *out)
+{
+    fprintf(out, "presek\n");
+    fprintf(out, "%lf\n", ccsObj.m_dStation);
+    fprintf(out, "%lf %lf\n", ccsObj.lobala_x, ccsObj.lobala_z);
+    fprintf(out, "%lf %lf\n", ccsObj.dobala_x, ccsObj.dobala_z);    
+}
+
+void printCrossSectionPoints(CCrossSection ccsObj, FILE *out)
+{
+    for (int k = 0; k < ccsObj.m_Points.GetCount(); k++)
+    {
+        CCrossSectionPoint& ccsp = ccsObj.m_Points.ElementAt(k);
+        fprintf(out, "%lf %lf\n", ccsp.m_dOffset, ccsp.m_dElevation);
+    }
+}
+
 int main(int argc, char** argv)
 {
     MyString filePath = argv[1];
-
-    MyString sCrossSectionDestFileName = "CrossSection.csv";
-	MyString sCrossSectionPointDestFileName = "CrossSectionPoints.csv";
-
-    MyFile GeometryFile, CrossSectionDest, CrossSectionPointDest;
-
+    MyFile GeometryFile;
     GeometryFile.Open(filePath, "r");
-    CrossSectionDest.Open(sCrossSectionDestFileName, "w");
-    CrossSectionPointDest.Open(sCrossSectionPointDestFileName, "w");
-
     CHECDoc HECDoc;
     HECDoc.OnNewDocument();
     HECDoc.Load(GeometryFile);
-    HECDoc.ExportCSV(CrossSectionDest, CrossSectionPointDest);
-
-    FILE *in = fopen("finalno.txt", "w");
+    FILE *out = fopen("finalno.txt", "w");
 
     for(int i = 0; i < HECDoc.m_Reaches.GetCount(); i++)
     {
         CReach& reach = HECDoc.m_Reaches.GetAt(i);
-        fprintf(in, "reach\n");
-        fprintf(in, "%s\n", reach.m_sName.c_str());
-        //cout << reach.m_sName << endl; //naziv reach-a
+        printReachHeader(reach, out);
         for (int j = 0; j < reach.m_CrossSectionIDs.GetCount(); j++)
         {
             int& ccsID = reach.m_CrossSectionIDs.ElementAt(j);
             CCrossSection ccsObj = HECDoc.m_CrossSections.Get(ccsID);
-            fprintf(in, "presek\n");
-            fprintf(in, "%lf\n", ccsObj.m_dStation);
-            fprintf(in, "%lf %lf\n", ccsObj.lobala_x, ccsObj.lobala_z);
-            fprintf(in, "%lf %lf\n", ccsObj.dobala_x, ccsObj.dobala_z);
-            //cout << ccsObj.m_dStation << endl; //stacionaza preseka
-            //cout << ccsObj.lobala_x << ", " << ccsObj.lobala_z << ", " << ccsObj.dobala_x << ", " << ccsObj.dobala_z << endl; //obale koordinate
-            for (int k = 0; k < ccsObj.m_Points.GetCount(); k++)
-            {
-                CCrossSectionPoint& ccsp = ccsObj.m_Points.ElementAt(k);
-                //cout << ccsp.m_dOffset << ", " <<  cout << ccsp.m_dElevation << endl; // x, y
-                fprintf(in, "%lf %lf\n", ccsp.m_dOffset, ccsp.m_dElevation);
-            }
+            printCrossSectionHeader(ccsObj, out);
+            printCrossSectionPoints(ccsObj, out);
         }
     }
-
     GeometryFile.Close();
-    CrossSectionDest.Close();
-    CrossSectionPointDest.Close();
-
-    fclose(in);
+    fclose(out);
     return 0;
 }
