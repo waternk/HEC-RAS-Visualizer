@@ -24,6 +24,7 @@ import * as $ from 'jquery';
         z-index: 0;
         background-color: white;
         margin: 0;
+        cursor: default;
     }
     #labels {  
         width: 100%;
@@ -101,7 +102,9 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     @ViewChild('LinesButton') LinesButton: ElementRef;
     @ViewChild('AxesHelperButton') AxesHelperButton: ElementRef;
     @ViewChild("LabelsContainer") LabelsContainer: ElementRef;
-    
+    raycaster : THREE.Raycaster;
+    panStart: THREE.Vector3;
+    keyHold: boolean;
     HelvetikerRegularFont: THREE.Font;
     IdeApp: IdeComponent;
     HECRASInputs: Array<String>;
@@ -150,9 +153,24 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         this.HECRASInputs.push(input);
     }
 
+    mousedown(event: MouseEvent)
+    {
+        ideApp.keyHold = true;
+        if(event.button == 0 && ideApp.MoveButton.nativeElement.getAttribute("pressed") == "true" && ideApp.keyHold)
+        {
+            ideApp.controls.enabled = false;
+            var mouseX = ( event.clientX / window.innerWidth ) * 2 - 1;
+			var mouseY = -( event.clientY / window.innerHeight ) * 2 + 1;
+			var mouse = new THREE.Vector3( mouseX, mouseY, ideApp.camera.near );
+            ideApp.raycaster.setFromCamera(mouse, ideApp.camera);
+			var vec = ideApp.raycaster.ray.intersectPlane(ideApp.Plane);
+			if (vec!=null) ideApp.panStart = vec;
+        }
+    }
+
     mouseup(e: MouseEvent)
     {
-        if(e.button == 2)
+        if(e.button == 0)
         {
             var scaleVector3 = new THREE.Vector3(ideApp.crossScaleX, ideApp.crossScaleY, ideApp.crossScaleZ);
             var dir = _.clone<THREE.Vector3>(ideApp.controls.target).sub(_.clone<THREE.Vector3>(ideApp.camera.position));
@@ -164,6 +182,28 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
                 ideApp.controls.target.set(point.x, point.y, point.z);
                 ideApp.camera.lookAt(point);
             }
+            
+            ideApp.controls.enabled = true;
+        }
+        ideApp.keyHold = false;
+    }
+
+    mousemove(event: MouseEvent)
+    {
+        if(event.button == 0 && ideApp.MoveButton.nativeElement.getAttribute("pressed") == "true" && ideApp.keyHold)
+        {
+            var mouseX = ( event.clientX / window.innerWidth ) * 2 - 1;
+			var mouseY = -( event.clientY / window.innerHeight ) * 2 + 1;
+			var mouse = new THREE.Vector3( mouseX, mouseY, ideApp.camera.near );
+            ideApp.raycaster.setFromCamera(mouse, ideApp.camera);
+            var panDelta = ideApp.raycaster.ray.intersectPlane(ideApp.Plane);
+			if (panDelta) 
+            {
+				var delta = new THREE.Vector3();
+				delta.subVectors(ideApp.panStart, panDelta);
+                ideApp.camera.position.addVectors(ideApp.camera.position, delta);
+                ideApp.controls.target.addVectors(ideApp.controls.target, delta);
+			}
         }
     }
 
@@ -214,6 +254,8 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
             var parent = document.getElementById("viewport");
             this.divCanvas.style.width = w + "px";
             this.divCanvas.style.height = w / this.aspect + "px";
+            this.raycaster = new THREE.Raycaster();
+            this.keyHold = false;
             this.SetEventListeners();
             this.CreateRenderer(this.divCanvas);
             this.divCanvas.appendChild(this.renderer.domElement);
@@ -249,10 +291,9 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
     SetDefualtControls()
     {
-        this.CreateControls(true, false, true, false);
+        this.CreateControls(false, false, true, false, true);
         this.LinesButtonOnClick(this.LinesButton.nativeElement);
         this.MoveButtonOnClick(this.MoveButton.nativeElement);
-        // this.RotateButtonOnClick(this.RotateButton.nativeElement);
     }
 
     ToggleButton(element: HTMLElement) : boolean
@@ -278,15 +319,18 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     ToggleButtonGroup(element: HTMLElement, dependencies: Array<ElementRef>)
     {
         var ClassList = element.classList;
+        element.setAttribute('pressed', 'true');
         ClassList.add("active");
-        for (var i = 0; i < dependencies.length; i++)
+        for (var i = 0; i < dependencies.length; i++) {
             dependencies[i].nativeElement.classList.remove("active");;
+            dependencies[i].nativeElement.setAttribute('pressed', 'false');
+        }
         $(element).blur();
     }
 
     AxesHelperButtonOnClick(element: HTMLElement)
     {
-         this.AxesHelperButton.nativeElement.pressed = this.ToggleButton(this.AxesHelperButton.nativeElement);
+         this.AxesHelperButton.nativeElement.setAttribute('pressed', new String(ideApp.ToggleButton(element)));
     }
 
     LinesButtonOnClick(element: HTMLElement)
@@ -335,7 +379,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
     LabelButtonOnClick(element: HTMLElement)
     {
-        ideApp.LabelButton.nativeElement.pressed = ideApp.ToggleButton(element);
+        ideApp.LabelButton.nativeElement.setAttribute('pressed', new String(ideApp.ToggleButton(element)));
         this.RefreshLabelsContainer();
         this.RefreshLabelsPosition();
     }
@@ -351,7 +395,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
     RefreshLabelsContainer()
     {
-        if(ideApp.LabelButton.nativeElement.pressed)
+        if(ideApp.LabelButton.nativeElement.getAttribute("pressed") == "true")
             ideApp.LabelsContainer.nativeElement.style.display = "block";
         else
             ideApp.LabelsContainer.nativeElement.style.display = "none";
@@ -430,22 +474,14 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         this.camera.updateProjectionMatrix();
         this.RefreshLabelsPosition();
 
-        // var sg = new THREE.SphereGeometry(this.BoundingSphereRadius);
-        // sg.applyMatrix(new THREE.Matrix4().makeTranslation(this.BoundingSphereCenter.x, this.BoundingSphereCenter.y, this.BoundingSphereCenter.z))
-        // var mesh = new THREE.Mesh(sg, new THREE.MeshBasicMaterial({color: 0x000000, wireframe: true}));
-        // this.scene.add(mesh);
-        
+        $(element).blur();
     }
     
     SetEventListeners()
     {
         this.divCanvas.addEventListener( 'mouseup', this.mouseup, false );
-        //window.addEventListener( 'resize', this.OnWindowResize, false );
-    }
-    
-    OnWindowResize()
-    {
-        
+        this.divCanvas.addEventListener( 'mousedown', this.mousedown, false );
+        this.divCanvas.addEventListener( 'mousemove', this.mousemove, false );
     }
 
     ChangeView()
@@ -464,7 +500,6 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
     {
         if(!this.reachCollection) return;
         this.ClearScene(this.scene);
-        //this.ClearScene(this.labelScene);
         
         this.selectedReach = null;
         var scaleVector3 = new THREE.Vector3(this.crossScaleX, this.crossScaleY, this.crossScaleZ);
@@ -474,13 +509,6 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         else
             this.reachCollection.AddReachesLikeLinesToScene(this.scene, this.camera, this.cameraHUD, this.divCanvas, scaleVector3);    
         
-        // for (var i = 0; i < this.reachCollection.Reaches.length; i++)
-        // {
-        //     var reach: Reach = this.reachCollection.Reaches[i];
-        //     if(reach.Visible)
-        //         reach.AddLabelToScene(this.labelScene);
-        // }
-        //this.reachCollection.AddLabelsToScene(this.labelScene); //bug
         this.SetLight();
     }
 
@@ -527,8 +555,9 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
 
     CreateControls(rotate?: boolean, zoom?: boolean, pan?: boolean, roll?: boolean, axesHelper?: boolean)
     {
-        this.AxesHelperButtonOnClick(this.AxesHelperButton.nativeElement);
-        this.CreateTrackBallControls(false, false, true, false);
+        if(axesHelper)
+            this.AxesHelperButtonOnClick(this.AxesHelperButton.nativeElement);
+        this.CreateTrackBallControls(rotate, zoom, pan, roll);
     }
     
     CreateScenes()
@@ -651,7 +680,7 @@ export class IdeComponent implements OnInit, AfterViewChecked, AfterViewInit
         ideApp.renderer.clear();
         ideApp.renderer.render(ideApp.scene, ideApp.camera);
         ideApp.renderer.clearDepth();
-        if(ideApp.AxesHelperButton.nativeElement.pressed)
+        if(ideApp.AxesHelperButton.nativeElement.getAttribute("pressed") == "true")
         {
             ideApp.renderer.clearDepth();
             ideApp.renderer.render(ideApp.hudScene, ideApp.AxesCamera);
